@@ -1,0 +1,47 @@
+const PUBLIC_API_BASE_URL = "http://localhost:8080/api";
+
+export interface FetchError extends Error {
+  response?: Response;
+}
+
+// un cliente fetch con opciones por defecto para usar en toda la app
+export const fetchClient = async <T>(
+  fetch: typeof window.fetch,
+  url: string,
+  options: RequestInit = {}): Promise<T> => {
+
+  const defaultHeaders = {
+    "Content-Type": "application/json",
+  };
+
+  const mergedOptions: RequestInit = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...(options.headers || {}),
+    },
+  };
+
+  const response = await fetch(`${PUBLIC_API_BASE_URL}${url}`, mergedOptions);
+
+  if (!response.ok) {
+    const error: FetchError = new Error(`Error en la petición: ${response.statusText}`)
+    error.response = response
+    throw error;
+  }
+
+  return response.json();
+}
+
+export class Fetch {
+  #fetch: typeof window.fetch
+
+  constructor(fetchFn: typeof window.fetch) {
+    this.#fetch = fetchFn
+  }
+
+  public async request<T>(url: string, options: RequestInit = {}): Promise<T> {
+    return await fetchClient<T>(this.#fetch, url, options);
+  }
+
+}

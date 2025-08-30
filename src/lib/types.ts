@@ -1,0 +1,109 @@
+export interface Puesto {
+  id: number;
+  puesto: PuestoType;
+  label?: string
+}
+
+export interface Turno {
+  id: number;
+  turno: TurnoType;
+  label?: string
+}
+
+export interface TareaResponse {
+  id: number;
+  descripcion: string;
+  completada: boolean;
+  fechaCompletada: string | null;
+  fecha: string;
+  tipoRecurrencia: RecurrenceType
+  diaSemana: DiaSemana | null;
+  diaMes: number | null;
+  puesto: Puesto;
+  turno: Turno;
+}
+
+export interface TareaApp {
+  id: number;
+  descripcion: string;
+  completada: boolean;
+  fechaCompletada: string | null;
+  fecha: string;
+  recurrencia: Recurrence
+  diaSemana: DiaSemana | null;
+  diaMes: number | null;
+  puesto: Puesto;
+  turno: Turno;
+}
+
+export interface CrearTareaRequest {
+  puestoId: number;
+  turnoId: number;
+  descripcion: string;
+  tipoRecurrencia: RecurrenceType
+  diaSemana?: DiaSemana;
+  diaMes?: number;
+  fecha?: string;
+}
+
+export interface FiltroTareaRequest {
+  turnoId?: number;
+  puestoId?: number;
+  tipoRecurrencia?: RecurrenceType
+  diaSemana?: DiaSemana;
+  completada?: boolean;
+}
+
+export enum RecurrenceType {
+  DIARIA = 'DIARIA',
+  SEMANAL = 'SEMANAL',
+  QUINCENAL = 'QUINCENAL',
+  MENSUAL = 'MENSUAL',
+  UNA_VEZ = 'UNA_VEZ'
+}
+
+export interface Recurrence {
+  recurrenceType: RecurrenceType;
+  label?: string;
+}
+
+export enum DiaSemana {
+  LUNES = 'LUNES',
+  MARTES = 'MARTES',
+  MIERCOLES = 'MIERCOLES',
+  JUEVES = 'JUEVES',
+  VIERNES = 'VIERNES',
+  SABADO = 'SABADO',
+  DOMINGO = 'DOMINGO'
+}
+
+export interface DiaSemanaWithLabel {
+  diaSemana: DiaSemana;
+  label: string;
+}
+
+export enum PuestoType {
+  ADMINISTRADOR = 'ADMINISTRADOR',
+  COCINERO = 'COCINERO',
+  CAMARERO = 'CAMARERO',
+  PINCHE = 'PINCHE'
+}
+
+export enum TurnoType {
+  MANANA = 'MANANA',
+  MEDIO = 'MEDIO',
+  TARDE = 'TARDE'
+}
+
+export interface LoginResponse {
+  token: string;
+  refreshToken: string,
+  user: ProfileResponse
+}
+
+export interface ProfileResponse {
+  usermame: string
+  name: string
+  isAdmin: boolean
+  roles: PuestoType[]
+}

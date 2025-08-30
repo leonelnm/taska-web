@@ -1,0 +1,41 @@
+import { filtroTareaToSearchParams } from "$lib/api/utils";
+import { formDataToFiltroTarea } from "$lib/api/utils";
+import type { Actions } from "@sveltejs/kit";
+import { redirect } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
+import { searchParamsToFiltroTarea } from "$lib/api/utils";
+import { TareasApi } from "$lib/api/tareasApi";
+
+export const load: PageServerLoad = async ({ fetch, url }) => {
+
+  const filtro = searchParamsToFiltroTarea(url.searchParams)
+
+  const tareasApi = new TareasApi(fetch);
+
+  // const tareas = await tareasApi.getTareas(filtro)
+  // const puestos = await tareasApi.getPuestos();
+  // const turnos = await tareasApi.getTurnos();
+
+  const [tareas, puestos, turnos] = await Promise.all([
+    tareasApi.getTareas(filtro),
+    tareasApi.getPuestos(),
+    tareasApi.getTurnos()])
+
+  return {
+    tareas, puestos, turnos, filtro
+  }
+
+};
+
+export const actions: Actions = {
+
+  filter: async ({ request, url }) => {
+    const formData = await request.formData();
+    const filtro = formDataToFiltroTarea(formData);
+    const params = filtroTareaToSearchParams(filtro);
+
+    throw redirect(303, url.pathname + '?' + params.toString());
+
+  }
+
+}
