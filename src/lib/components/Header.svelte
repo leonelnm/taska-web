@@ -2,12 +2,8 @@
 	import { goto, invalidateAll } from '$app/navigation';
 
 	const handleLogout = async () => {
-		console.log('1. handleLogout');
 		await fetch('/api/logout', { method: 'POST' });
-
 		await invalidateAll();
-		console.log('2. invalidar');
-
 		goto('/login');
 	};
 </script>

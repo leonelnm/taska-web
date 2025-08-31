@@ -3,8 +3,7 @@ import { Fetch } from '$lib/api/fetchClient';
 import { Constants } from '$lib/constants';
 import type { ProfileResponse } from '$lib/types';
 import { profileApi } from '$lib/api/authApi';
-
-const API_BASE_URL = 'http://localhost:8080';
+import { config } from '$lib/config';
 
 const profileCache = new Map<string, { data: ProfileResponse; expiresAt: number }>();
 const PROFILE_CACHE_TTL = 60 * 1000;
@@ -72,10 +71,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 };
 
 export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
-  console.log('handleFetch->', request.url);
 
-
-  if (request.url.startsWith(API_BASE_URL)) {
+  if (request.url.startsWith(config.BASE_PATH)) {
     const sessionToken = event.cookies.get(Constants.COOKIE_SESSION_NAME);
 
     const newRequest = request.clone();
@@ -89,9 +86,8 @@ export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
     // Si el token expiró, intentamos refrescarlo.
     if (!response.ok && response.status === 401) {
       try {
-        console.log('refressh....');
 
-        const refreshResponse = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+        const refreshResponse = await fetch(`${config.BASE_PATH}/auth/refresh`, {
           method: 'POST',
           credentials: 'include'
         });
@@ -127,7 +123,6 @@ export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
         event.cookies.delete(Constants.COOKIE_SESSION_NAME, { path: '/' });
         event.cookies.delete(Constants.COOKIEA_REFRESH_TOKEN, { path: '/' });
       }
-      console.log('sale');
 
       throw redirect(303, '/login');
     }

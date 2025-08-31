@@ -1,4 +1,4 @@
-const PUBLIC_API_BASE_URL = "http://localhost:8080/api";
+import { config } from "$lib/config";
 
 export interface FetchError extends Error {
   response?: Response;
@@ -22,7 +22,7 @@ export const fetchClient = async <T>(
     },
   };
 
-  const response = await fetch(`${PUBLIC_API_BASE_URL}${url}`, mergedOptions);
+  const response = await fetch(`${config.BASE_PATH}${url}`, mergedOptions);
 
   if (!response.ok) {
     const error: FetchError = new Error(`Error en la petición: ${response.statusText}`)

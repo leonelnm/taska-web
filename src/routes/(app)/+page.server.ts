@@ -12,10 +12,6 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 
   const tareasApi = new TareasApi(fetch);
 
-  // const tareas = await tareasApi.getTareas(filtro)
-  // const puestos = await tareasApi.getPuestos();
-  // const turnos = await tareasApi.getTurnos();
-
   const [tareas, puestos, turnos] = await Promise.all([
     tareasApi.getTareas(filtro),
     tareasApi.getPuestos(),

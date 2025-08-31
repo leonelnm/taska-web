@@ -49,8 +49,6 @@
 	const handleReset = async (event: Event) => {
 		event.preventDefault();
 
-		console.log();
-
 		try {
 			filtro = { ...initialStateFilter };
 		} finally {

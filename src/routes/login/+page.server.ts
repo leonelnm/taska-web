@@ -1,7 +1,8 @@
 import { fail, redirect, type Actions } from "@sveltejs/kit";
 import { Constants } from "$lib/constants";
 import type { PageServerLoad } from "./$types";
-import type { LoginResponse } from "$lib/types";
+import { loginApi } from "$lib/api/authApi";
+import { Fetch } from "$lib/api/fetchClient";
 
 export const load: PageServerLoad = ({ locals }) => {
   const user = locals.user
@@ -25,25 +26,7 @@ export const actions: Actions = {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: "POST",
-        body: JSON.stringify({ username, password }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include'
-      })
-
-      console.log('login response', response);
-
-
-      if (!response.ok) {
-        return fail(400, {
-          error: 'Credenciales incorrectas'
-        })
-      }
-
-      const { token, refreshToken }: LoginResponse = await response.json();
+      const { token, refreshToken } = await loginApi(new Fetch(fetch), username, password);
 
       cookies.set(Constants.COOKIE_SESSION_NAME, token, {
         path: '/',
@@ -62,7 +45,9 @@ export const actions: Actions = {
       });
 
 
-    } catch {
+    } catch (err) {
+      console.log(err);
+
       return fail(500, {
         error: 'Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo más tarde.'
       });
