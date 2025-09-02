@@ -24,10 +24,10 @@ export const getDiasSemana = (): DiaSemanaWithLabel[] => {
 
 export const getLabelFromString = (key: string): string => {
   const mapper: Record<string, string> = {
-    'ADMINISTRADOR': 'Administrador',
+    'ENCARGADO': 'Encargado',
     'COCINERO': 'Cocinera',
     'CAMARERO': 'Camarera',
-    'PINCHE': 'Pinche',
+    'PINCHE': 'Ayudante Cocina',
     'MANANA': 'Mañana',
     'MEDIO': 'Medio día',
     'TARDE': 'Tarde'

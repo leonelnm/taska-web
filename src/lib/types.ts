@@ -83,7 +83,7 @@ export interface DiaSemanaWithLabel {
 }
 
 export enum PuestoType {
-  ADMINISTRADOR = 'ADMINISTRADOR',
+  ENCARGADO = 'ENCARGADO',
   COCINERO = 'COCINERO',
   CAMARERO = 'CAMARERO',
   PINCHE = 'PINCHE'
@@ -105,5 +105,5 @@ export interface ProfileResponse {
   usermame: string
   name: string
   isAdmin: boolean
-  roles: PuestoType[]
+  puesto: PuestoType
 }
