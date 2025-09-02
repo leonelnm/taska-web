@@ -60,7 +60,7 @@ export class TareasApi {
       return data.map((puesto: Puesto) => ({
         ...puesto,
         label: getLabelFromString(puesto.puesto)
-      }));
+      })).sort((a, b) => a.label.localeCompare(b.label));
     } catch (error) {
       console.error('Error fetching puestos:', error);
       return [];
