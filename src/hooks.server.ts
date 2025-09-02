@@ -73,6 +73,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
 
   if (request.url.startsWith(config.BASE_PATH)) {
+    console.log('handleFetch API -> ', request.url);
     const sessionToken = event.cookies.get(Constants.COOKIE_SESSION_NAME);
 
     const newRequest = request.clone();
