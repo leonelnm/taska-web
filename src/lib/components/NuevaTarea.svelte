@@ -1,15 +1,19 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { getRecurrences } from '$lib/api/utils';
-	import { RecurrenceType, type CrearTareaRequest, type Puesto, type Turno } from '$lib/types';
-	import { fly } from 'svelte/transition';
+	import { RecurrenceType, type Puesto, type Turno } from '$lib/types';
+	import { fade, fly } from 'svelte/transition';
 
 	interface Props {
 		puestos: Puesto[];
 		turnos: Turno[];
+		error?: string | undefined;
 	}
-	let { puestos, turnos }: Props = $props();
+
+	let { puestos, turnos, error }: Props = $props();
 
 	const animationOptions = { duration: 100 };
+	const descriptionMaxLenght = 100;
 
 	let recurrencias = getRecurrences();
 
@@ -25,29 +29,53 @@
 		recurrenciaSelected = recurrencia;
 	};
 
-	const handleSubmit = (event: SubmitEvent) => {
-		event.preventDefault();
-		const form = event.currentTarget as HTMLFormElement;
-		const fd = new FormData(form);
+	let descripcion = $state('');
+	let puesto = $state('2');
+	let turno = $state('');
+	let diaSemana = $state('');
+	let diaMes = $state<number | undefined>();
+	let fecha = $state('');
 
-		const payload: CrearTareaRequest = {
-			puestoId: Number(fd.get('puesto')),
-			turnoId: Number(fd.get('turno')),
-			descripcion: String(fd.get('descripcion')),
-			tipoRecurrencia: recurrenciaSelected,
-			diaSemana: (fd.get('diaSemana') as CrearTareaRequest['diaSemana']) ?? undefined,
-			diaMes: fd.get('diaMes') ? Number(fd.get('diaMes')) : undefined,
-			fecha: fd.get('fecha') ? String(fd.get('fecha')) : undefined
-		};
+	let formErrors = $state<{ [key: string]: string | undefined }>({});
+	let formMessage = $state<string | undefined>();
 
-		// crearTarea(payload)
-		// 	.then((tarea) => {
-		// 		form.reset();
-		// 		recurrenciaSelected = recurrencias[0].recurrenceType;
-		// 	})
-		// 	.catch((error) => {
-		// 		console.error('Error creando tarea:', error);
-		// 	});
+	let remaining = $derived(descriptionMaxLenght - descripcion.length);
+	let showRemaining = $derived(remaining < 40);
+	let showErrorRemaining = $derived(remaining < 0);
+
+	let creating = $state(false);
+	let created = $state(false);
+
+	const validateForm = () => {
+		formErrors = {};
+		formMessage = undefined;
+		if (!descripcion) formErrors.descripcion = 'La descripción es obligatoria.';
+		if (!puesto) formErrors.puesto = 'El puesto es obligatorio.';
+		if (!turno) formErrors.turno = 'El turno es obligatorio.';
+		if (showErrorRemaining) formErrors.error = 'La descripción es muy larga.';
+
+		switch (recurrenciaSelected) {
+			case RecurrenceType.SEMANAL:
+			case RecurrenceType.QUINCENAL:
+				if (!diaSemana)
+					formErrors.diaSemana = 'El día de la semana es obligatorio para esta recurrencia.';
+				break;
+			case RecurrenceType.MENSUAL:
+				if (!diaMes) formErrors.diaMes = 'El día del mes es obligatorio para esta recurrencia.';
+				break;
+			case RecurrenceType.UNA_VEZ:
+				if (!fecha) formErrors.fecha = 'La fecha es obligatoria para esta recurrencia.';
+				break;
+		}
+
+		return Object.keys(formErrors).length === 0;
+	};
+
+	const handleSubmit = (event: Event) => {
+		if (!validateForm()) {
+			event.preventDefault();
+			formMessage = 'Por favor, corrige los errores en el formulario.';
+		}
 	};
 </script>
 
@@ -60,20 +88,116 @@
 
 	<form
 		class="space-y-5"
+		method="POST"
 		onsubmit={handleSubmit}
-		in:fly={{ ...animationOptions, y: -10 }}
-		out:fly={{ ...animationOptions, y: -10 }}
+		in:fade={animationOptions}
+		use:enhance={() => {
+			creating = true;
+			created = false;
+			return async ({ result, update }) => {
+				if (result.type === 'success') {
+					created = true;
+				}
+				await update();
+				creating = false;
+			};
+		}}
 	>
+		{#if formMessage}
+			<div class="rounded-md bg-red-50 p-4">
+				<div class="flex">
+					<div class="ml-3">
+						<h3 class="text-sm font-medium text-red-800">{formMessage}</h3>
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		{#if error}
+			<div class="rounded-md bg-red-50 p-4">
+				<div class="flex">
+					<div class="ml-3">
+						<h3 class="text-sm font-medium text-red-800">{error}</h3>
+					</div>
+				</div>
+			</div>
+		{/if}
+
+		{#if created}
+			<div
+				transition:fade={animationOptions}
+				id="alert-3"
+				class="mb-4 flex items-center rounded-lg bg-green-50 p-4 text-green-800"
+				role="alert"
+			>
+				<svg
+					class="h-4 w-4 shrink-0"
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+				>
+					<path
+						d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+					/>
+				</svg>
+				<span class="sr-only">Info</span>
+				<div class="ms-3 text-sm font-medium">Tarea Creada</div>
+				<button
+					type="button"
+					class="-mx-1.5 -my-1.5 ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-green-50 p-1.5 text-green-500 hover:bg-green-200 focus:ring-2 focus:ring-green-400"
+					data-dismiss-target="#alert-3"
+					aria-label="Close"
+					onclick={() => {
+						created = false;
+					}}
+				>
+					<span class="sr-only">Close</span>
+					<svg
+						class="h-3 w-3"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 14 14"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+						/>
+					</svg>
+				</button>
+			</div>
+		{/if}
+
 		<div class="space-y-2">
 			<label for="descripcion" class="block font-medium text-gray-700">Descripción</label>
-			<textarea
-				id="descripcion"
-				name="descripcion"
-				rows="3"
-				placeholder="Describe la tarea a realizar..."
-				class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
-				required
-			></textarea>
+			<div class="flex-col">
+				<textarea
+					id="descripcion"
+					name="descripcion"
+					rows="4"
+					placeholder="Describe la tarea a realizar..."
+					class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 invalid:focus:ring-red-500 {showErrorRemaining
+						? 'border-red-300 focus:ring-red-500'
+						: 'focus:ring-blue-500'} focus:outline-none"
+					bind:value={descripcion}
+					required
+				></textarea>
+				{#if showRemaining}
+					<span
+						transition:fade={animationOptions}
+						class="mr-2 block text-right text-xs {showErrorRemaining
+							? 'text-red-600'
+							: 'text-gray-400'}">Max {descriptionMaxLenght} caractéres. (Quedan {remaining})</span
+					>
+				{/if}
+			</div>
+			{#if formErrors.descripcion}<p class="mt-1 text-sm text-red-600">
+					{formErrors.descripcion}
+				</p>{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -81,7 +205,8 @@
 			<select
 				id="puesto"
 				name="puesto"
-				class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
+				class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none invalid:focus:ring-red-500"
+				bind:value={puesto}
 				required
 			>
 				<option value="" disabled selected>Selecciona un puesto</option>
@@ -89,6 +214,7 @@
 					<option value={puesto.id}>{puesto.label}</option>
 				{/each}
 			</select>
+			{#if formErrors.puesto}<p class="mt-1 text-sm text-red-600">{formErrors.puesto}</p>{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -96,7 +222,8 @@
 			<select
 				id="turno"
 				name="turno"
-				class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
+				class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none invalid:focus:ring-red-500"
+				bind:value={turno}
 				required
 			>
 				<option value="" disabled selected>Selecciona un turno</option>
@@ -104,6 +231,7 @@
 					<option value={turno.id}>{turno.label}</option>
 				{/each}
 			</select>
+			{#if formErrors.turno}<p class="mt-1 text-sm text-red-600">{formErrors.turno}</p>{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -125,6 +253,7 @@
 					</button>
 				{/each}
 			</div>
+			<input hidden id="recurrencia" name="recurrencia" bind:value={recurrenciaSelected} />
 		</div>
 
 		{#if mostrarDiaSemana}
@@ -133,7 +262,9 @@
 				<select
 					id="diaSemana"
 					name="diaSemana"
-					class="w-full rounded-md border border-gray-300 px-3 py-2.5 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
+					class="w-full rounded-md border border-gray-300 px-3 py-2.5 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none invalid:focus:ring-red-500"
+					bind:value={diaSemana}
+					required={mostrarDiaSemana}
 				>
 					<option value="LUNES">Lunes</option>
 					<option value="MARTES">Martes</option>
@@ -143,6 +274,9 @@
 					<option value="SABADO">Sábado</option>
 					<option value="DOMINGO">Domingo</option>
 				</select>
+				{#if formErrors.diaSemana}<p class="mt-1 text-sm text-red-600">
+						{formErrors.diaSemana}
+					</p>{/if}
 			</div>
 		{/if}
 
@@ -156,8 +290,11 @@
 					min="1"
 					max="31"
 					placeholder="Ej: 15"
-					class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
+					class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none invalid:focus:ring-red-500"
+					bind:value={diaMes}
+					required={mostrarDiaMes}
 				/>
+				{#if formErrors.diaMes}<p class="mt-1 text-sm text-red-600">{formErrors.diaMes}</p>{/if}
 			</div>
 		{/if}
 
@@ -168,14 +305,18 @@
 					type="date"
 					id="fecha"
 					name="fecha"
-					class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
+					class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none invalid:focus:ring-red-500"
+					bind:value={fecha}
+					required={mostrarFecha}
 				/>
+				{#if formErrors.fecha}<p class="mt-1 text-sm text-red-600">{formErrors.fecha}</p>{/if}
 			</div>
 		{/if}
 
 		<button
 			type="submit"
-			class="w-full rounded-md bg-blue-600 py-3 font-medium text-white shadow-md transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+			class="w-full rounded-md bg-blue-600 py-3 font-medium text-white shadow-md transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none invalid:focus:ring-red-500 disabled:bg-blue-300"
+			disabled={creating}
 		>
 			Guardar Tarea
 		</button>

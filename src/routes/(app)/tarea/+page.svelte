@@ -2,10 +2,10 @@
 	import NuevaTarea from '$lib/components/NuevaTarea.svelte';
 	import type { PageProps } from './$types';
 
-	const { data }: PageProps = $props();
+	const { data, form }: PageProps = $props();
 	const { puestos, turnos } = data;
 </script>
 
 <div class="space-y-6">
-	<NuevaTarea {turnos} {puestos} />
+	<NuevaTarea {turnos} {puestos} error={form?.message} />
 </div>

@@ -6,7 +6,7 @@ import type { PageServerLoad } from "./$types";
 import { searchParamsToFiltroTarea } from "$lib/api/utils";
 import { TareasApi } from "$lib/api/tareasApi";
 
-export const load: PageServerLoad = async ({ fetch, url }) => {
+export const load: PageServerLoad = async ({ fetch, url, locals }) => {
 
   const filtro = searchParamsToFiltroTarea(url.searchParams)
 
@@ -17,8 +17,14 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
     tareasApi.getPuestos(),
     tareasApi.getTurnos()])
 
+  const isAdmin = locals.user?.isAdmin
+
   return {
-    tareas, puestos, turnos, filtro
+    tareas,
+    puestos,
+    turnos,
+    filtro,
+    isAdmin
   }
 
 };

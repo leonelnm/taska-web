@@ -2,7 +2,7 @@ import { fail, redirect, type Actions } from "@sveltejs/kit";
 import { Constants } from "$lib/constants";
 import type { PageServerLoad } from "./$types";
 import { loginApi } from "$lib/api/authApi";
-import { Fetch } from "$lib/api/fetchClient";
+import { Fetch, type FetchError } from "$lib/api/fetchClient";
 
 export const load: PageServerLoad = ({ locals }) => {
   const user = locals.user
@@ -46,7 +46,15 @@ export const actions: Actions = {
 
 
     } catch (err) {
-      console.log(err);
+
+      const error = err as FetchError
+
+      if (error.response?.status === 401) {
+        return fail(401, {
+          error: 'Credenciales incorrectas.'
+        });
+      }
+
 
       return fail(500, {
         error: 'Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo más tarde.'
