@@ -4,7 +4,6 @@
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
-	const { tareas, turnos, puestos, filtro, isAdmin } = data;
 </script>
 
 <div class="space-y-6">
@@ -16,7 +15,12 @@
 		>
 	</div>
 
-	<Filtro {turnos} {puestos} filtroState={filtro} {isAdmin} />
+	<Filtro
+		turnos={data.turnos}
+		puestos={data.puestos}
+		filtroState={data.filtro}
+		isAdmin={data.isAdmin}
+	/>
 
-	<Tareas {tareas} />
+	<Tareas tareas={data.tareas} />
 </div>

@@ -1,7 +1,6 @@
 import { filtroTareaToSearchParams } from "$lib/api/utils";
 import { formDataToFiltroTarea } from "$lib/api/utils";
 import type { Actions } from "@sveltejs/kit";
-import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { searchParamsToFiltroTarea } from "$lib/api/utils";
 import { TareasApi } from "$lib/api/tareasApi";
@@ -31,13 +30,24 @@ export const load: PageServerLoad = async ({ fetch, url, locals }) => {
 
 export const actions: Actions = {
 
-  filter: async ({ request, url }) => {
+  filter: async ({ request }) => {
     const formData = await request.formData();
     const filtro = formDataToFiltroTarea(formData);
     const params = filtroTareaToSearchParams(filtro);
 
-    throw redirect(303, url.pathname + '?' + params.toString());
+    return {
+      params: params.toString(),
+    }
+  },
 
+  complete: async ({ request, fetch }) => {
+    const data = await request.formData();
+    const id = data.get("id") as string;
+
+    const tareasApi = new TareasApi(fetch);
+    await tareasApi.completarTarea(Number(id));
+
+    return { success: true };
   }
 
 }
