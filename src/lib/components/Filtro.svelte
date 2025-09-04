@@ -3,6 +3,8 @@
 	import { fly } from 'svelte/transition';
 	import type { FiltroTareaRequest, Puesto, Turno } from '$lib/types';
 	import SelectField from './SelectField.svelte';
+	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 
 	interface Props {
 		collapsed?: boolean;
@@ -44,16 +46,11 @@
 		...initialStateFilter,
 		...filtroState
 	});
-	let isLoading = $state(false);
+	let isSearching = $state(false);
 
 	const handleReset = async (event: Event) => {
 		event.preventDefault();
-
-		try {
-			filtro = { ...initialStateFilter };
-		} finally {
-			isLoading = false;
-		}
+		filtro = { ...initialStateFilter };
 	};
 
 	const handleClose = () => {
@@ -86,6 +83,21 @@
 			onreset={handleReset}
 			in:fly={{ ...animationOptions, y: -10 }}
 			out:fly={{ ...animationOptions, y: -10 }}
+			use:enhance={() => {
+				isSearching = true;
+				return async ({ result, update }) => {
+					if (result.type === 'success') {
+						const { params } = result.data as {
+							params: string;
+						};
+
+						goto('?' + params, {
+							replaceState: true
+						});
+					}
+					isSearching = false;
+				};
+			}}
 		>
 			<SelectField
 				label="Turno"
@@ -132,18 +144,18 @@
 			<div class="flex justify-end gap-3 sm:flex-row-reverse sm:justify-start">
 				<button
 					type="reset"
-					class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 focus:outline-none"
+					class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-900 hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 focus:outline-none disabled:bg-gray-50 disabled:text-gray-300"
 					onclick={(e) => e.currentTarget.blur()}
-					disabled={isLoading}
+					disabled={isSearching}
 				>
 					Limpiar
 				</button>
 
 				<button
 					type="submit"
-					class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none"
+					class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:bg-blue-300"
 					onclick={(e) => e.currentTarget.blur()}
-					disabled={isLoading}
+					disabled={isSearching}
 				>
 					Buscar
 				</button>
