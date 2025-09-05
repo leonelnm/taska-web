@@ -1,15 +1,9 @@
-import { fail, redirect, type Actions } from "@sveltejs/kit";
+import { fail, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { TareasApi } from "$lib/api/tareasApi";
 import { RecurrenceType, type CrearTareaRequest, type DiaSemana } from "$lib/types";
 
-export const load: PageServerLoad = async ({ fetch, locals }) => {
-
-  const { user } = locals
-
-  if (!user?.isAdmin) {
-    throw redirect(303, '/')
-  }
+export const load: PageServerLoad = async ({ fetch }) => {
 
   const tareasApi = new TareasApi(fetch);
   const puestos = await tareasApi.getPuestos();
