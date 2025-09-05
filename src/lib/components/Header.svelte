@@ -3,18 +3,28 @@
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
 
+	let { isAdmin = false } = $props();
+
 	const handleLogout = async () => {
 		await fetch('/api/logout', { method: 'POST' });
 		await invalidateAll();
 		goto('/login');
 	};
 
-	const pagesCommon = [
-		{ path: '/', label: 'Inicio' },
-		{ path: '/admin/tarea', label: 'Crear Tarea' },
-		{ path: '/admin/usuarios', label: 'Usuarios' },
-		{ path: '/perfil', label: 'Perfil' }
-	];
+	let routes = $derived.by(() => {
+		return isAdmin
+			? [
+					{ path: '/', label: 'Inicio' },
+					{ path: '/admin/tarea', label: 'Crear Tarea' },
+					{ path: '/admin/usuarios', label: 'Usuarios' },
+					{ path: '/perfil', label: 'Perfil' }
+				]
+			: [
+					{ path: '/', label: 'Inicio' },
+
+					{ path: '/perfil', label: 'Perfil' }
+				];
+	});
 
 	let open = $state(false);
 </script>
@@ -60,7 +70,7 @@
 				transition:slide={{ duration: 100 }}
 			>
 				<ul class="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium">
-					{#each pagesCommon as option}
+					{#each routes as option}
 						<li>
 							<a
 								onclick={() => (open = !open)}
@@ -92,7 +102,7 @@
 				transition:slide={{ duration: 100 }}
 			>
 				<ul class="flex flex-row gap-3 rounded-lg p-4 font-medium">
-					{#each pagesCommon as option}
+					{#each routes as option}
 						<li>
 							<a
 								href={option.path}
