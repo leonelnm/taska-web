@@ -107,3 +107,32 @@ export interface ProfileResponse {
   isAdmin: boolean
   puesto: PuestoType
 }
+
+export interface UserResponse {
+  id: number
+  username: string
+  nombre: string
+  activo: boolean
+  fechaCreacion: string
+  fechaActualizacion: string
+  puesto: string
+  rol: string
+  admin: boolean
+}
+
+export interface CrearUserRequest {
+  username: string;
+  password: string;
+  nombre?: string | null;
+  puestoId: number;
+}
+
+export interface AdminChangePasswordRequest {
+  username: string;
+  password: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}

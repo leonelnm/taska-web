@@ -1,9 +1,10 @@
 import { redirect, type Handle, type HandleFetch } from '@sveltejs/kit';
-import { Fetch } from '$lib/api/fetchClient';
 import { Constants } from '$lib/constants';
 import type { ProfileResponse } from '$lib/types';
-import { profileApi } from '$lib/api/authApi';
 import { config } from '$lib/config';
+import { ProfileApi } from '$lib/api/profileApi';
+import { refreshTokenApi } from '$lib/api/authApi';
+import { Fetch } from '$lib/api/fetchClient';
 
 const profileCache = new Map<string, { data: ProfileResponse; expiresAt: number }>();
 const PROFILE_CACHE_TTL = 60 * 1000;
@@ -22,7 +23,11 @@ async function validateToken(fetchFn: typeof fetch, token: string): Promise<Cust
   }
 
   try {
-    const response = await profileApi(new Fetch(fetchFn))
+    const profileApi = new ProfileApi(fetchFn);
+    console.log("INIT getProfile");
+    const response = await profileApi.getProfile()
+    console.log("response getProfile", { response });
+
     profileCache.set(token, { data: response, expiresAt: now + PROFILE_CACHE_TTL });
 
     return {
@@ -87,39 +92,36 @@ export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
     // Si el token expiró, intentamos refrescarlo.
     if (!response.ok && response.status === 401) {
       try {
+        console.log('INIT refresh...', request.url);
+        const refreshResponse = await refreshTokenApi(new Fetch(fetch));
+        console.log('OK refresh', request.url);
+        const { token: newAuthToken, refreshToken } = refreshResponse;
 
-        const refreshResponse = await fetch(`${config.BASE_PATH}/auth/refresh`, {
-          method: 'POST',
-          credentials: 'include'
+        // Guarda el nuevo token de sesión.
+        event.cookies.set(Constants.COOKIE_SESSION_NAME, newAuthToken, {
+          path: '/',
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 60 * 60 * 24 * 1
         });
 
-        if (refreshResponse.ok) {
-          const { token: newAuthToken, refreshToken } = await refreshResponse.json();
+        event.cookies.set(Constants.COOKIEA_REFRESH_TOKEN, refreshToken, {
+          path: '/',
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 60 * 60 * 24 * 7
+        });
 
-          // Guarda el nuevo token de sesión.
-          event.cookies.set(Constants.COOKIE_SESSION_NAME, newAuthToken, {
-            path: '/',
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 1
-          });
+        // Vuelve a intentar la petición original con el nuevo token.
+        const retryRequest = request.clone();
+        retryRequest.headers.set('Authorization', `Bearer ${newAuthToken}`);
 
-          event.cookies.set(Constants.COOKIEA_REFRESH_TOKEN, refreshToken, {
-            path: '/',
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 7
-          });
+        return fetch(retryRequest);
 
-          // Vuelve a intentar la petición original con el nuevo token.
-          const retryRequest = request.clone();
-          retryRequest.headers.set('Authorization', `Bearer ${newAuthToken}`);
-
-          return fetch(retryRequest);
-        }
       } catch (err) {
+        console.log('FAIL refresh', request.url);
         console.error('Error al refrescar el token:', err);
         event.cookies.delete(Constants.COOKIE_SESSION_NAME, { path: '/' });
         event.cookies.delete(Constants.COOKIEA_REFRESH_TOKEN, { path: '/' });

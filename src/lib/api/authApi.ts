@@ -1,12 +1,12 @@
 
 import { Fetch } from "$lib/api/fetchClient";
-import type { LoginResponse, ProfileResponse } from "$lib/types";
+import type { LoginResponse } from "$lib/types";
 import { Routes } from "./routes";
 
 
 export const loginApi = async (fetch: Fetch, username: string, password: string): Promise<LoginResponse> => {
 
-  const data = await fetch.request<LoginResponse>(Routes.LOGIN, {
+  const data = await fetch.request<LoginResponse>(Routes.AUTH.LOGIN, {
     method: "POST",
     body: JSON.stringify({ username, password }),
     credentials: 'include'
@@ -15,8 +15,12 @@ export const loginApi = async (fetch: Fetch, username: string, password: string)
   return data;
 };
 
-export const profileApi = async (fetch: Fetch): Promise<ProfileResponse> => {
+export const refreshTokenApi = async (fetch: Fetch): Promise<LoginResponse> => {
 
-  return await fetch.request<ProfileResponse>(Routes.PROFILE)
+  const data = await fetch.request<LoginResponse>(Routes.AUTH.REFRESH, {
+    method: "POST",
+    credentials: 'include'
+  })
 
-}
+  return data;
+};

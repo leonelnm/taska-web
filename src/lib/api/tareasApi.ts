@@ -21,46 +21,49 @@ export class TareasApi {
       });
     }
 
-    const queryString = params.toString();
-    const url = queryString ? `${Routes.TAREAS}?${queryString}` : `${Routes.TAREAS}`;
+    const url = params.toString() ? `${Routes.TAREAS.BASE}?${params.toString()}` : Routes.TAREAS.BASE;
 
     try {
       const data = await this.fetch.request<TareaResponse[]>(url);
       return data.map(mapTarea);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error("Error fetching tareas:", error);
       return [];
     }
   }
 
   public async crearTarea(request: CrearTareaRequest): Promise<TareaResponse> {
     try {
-      return await this.fetch.request<TareaResponse>(Routes.TAREAS, { method: 'POST', body: JSON.stringify(request) });
+      return await this.fetch.request<TareaResponse>(Routes.TAREAS.CREATE, {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
     } catch (error) {
       console.error('Error creating task:', error);
       throw error;
     }
   }
 
-  // Repite este patrón para el resto de los métodos: completarTarea, getPuestos, getTurnos
+  // POST /tareas/{id}/completar
   public async completarTarea(id: number): Promise<TareaApp> {
-    const url = `${Routes.TAREAS}/${id}/completar`;
     try {
-      const data = await this.fetch.request<TareaResponse>(url, { method: 'POST' });
+      const data = await this.fetch.request<TareaResponse>(Routes.TAREAS.COMPLETE(id), {
+        method: "POST",
+      });
       return mapTarea(data);
     } catch (error) {
-      console.error('Error completing task:', error);
+      console.error("Error completing tarea:", error);
       throw error;
     }
   }
 
   public async getPuestos(): Promise<Puesto[]> {
     try {
-      const data = await this.fetch.request<Puesto[]>(Routes.PUESTOS);
+      const data = await this.fetch.request<Puesto[]>(Routes.PUESTOS.BASE);
       return data.map((puesto: Puesto) => ({
         ...puesto,
         label: getLabelFromString(puesto.puesto)
-      })).sort((a, b) => a.label.localeCompare(b.label));
+      })).sort((a, b) => this.localCompare(a.label, b.label));
     } catch (error) {
       console.error('Error fetching puestos:', error);
       return [];
@@ -69,16 +72,18 @@ export class TareasApi {
 
   public async getTurnos(): Promise<Turno[]> {
     try {
-      const data = await this.fetch.request<Turno[]>(Routes.TURNOS);
+      const data = await this.fetch.request<Turno[]>(Routes.TURNOS.BASE);
       return data.map((turno: Turno) => ({
         ...turno,
         label: getLabelFromString(turno.turno)
-      })).sort((a: Turno, b: Turno) => {
-        return a.turno.localeCompare(b.turno, 'es', { sensitivity: 'base' });
-      });
+      })).sort((a, b) => this.localCompare(a.label, b.label));
     } catch (error) {
       console.error('Error fetching turnos:', error);
       return [];
     }
+  }
+
+  private localCompare(a: string, b: string): number {
+    return a.localeCompare(b, 'es', { sensitivity: 'base' })
   }
 }

@@ -30,7 +30,7 @@
 	};
 
 	let descripcion = $state('');
-	let puesto = $state('2');
+	let puesto = $state('');
 	let turno = $state('');
 	let diaSemana = $state('');
 	let diaMes = $state<number | undefined>();

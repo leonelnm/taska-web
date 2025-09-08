@@ -6,6 +6,4 @@
 	const { puestos, turnos } = data;
 </script>
 
-<div class="space-y-6">
-	<NuevaTarea {turnos} {puestos} error={form?.message} />
-</div>
+<NuevaTarea {turnos} {puestos} error={form?.message} />
