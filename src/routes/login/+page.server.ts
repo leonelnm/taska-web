@@ -53,6 +53,8 @@ export const actions: Actions = {
         return fail(401, {
           error: 'Credenciales incorrectas.'
         });
+      } else {
+        console.log({ error });
       }
 
 
@@ -62,7 +64,7 @@ export const actions: Actions = {
     }
 
 
-    redirect(303, '/')
+    throw redirect(303, '/')
 
   }
 }

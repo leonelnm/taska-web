@@ -20,12 +20,12 @@
 <div class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-8">
 	<div class="flex items-center justify-between">
 		<div class="flex items-center gap-2">
-			<h5 class="text-xl font-medium text-gray-900">Tareas</h5>
-			<span>{count.completadas}/{count.total}</span>
+			<h2 class="text-xl font-medium">Tareas</h2>
+			<span class="text-gray-600">{count.completadas}/{count.total}</span>
 		</div>
 
 		{#if count.incompletas > 0}
-			<p class="italic" transition:fade>Pendientes: {count.incompletas}</p>
+			<p class="text-gray-600" transition:fade>Pendientes: {count.incompletas}</p>
 		{/if}
 	</div>
 

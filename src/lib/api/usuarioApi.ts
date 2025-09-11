@@ -28,7 +28,7 @@ export class UserApi {
       });
     } catch (error) {
       console.error("Error creating user:", error);
-      return undefined;
+      throw error;
     }
   }
 

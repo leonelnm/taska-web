@@ -1,26 +1,28 @@
 <script lang="ts">
+	import CardCollapse from '$lib/components/CardCollapse.svelte';
+	import CrearUsuario from '$lib/components/usuarios/CrearUsuario.svelte';
+	import Usuario from '$lib/components/usuarios/Usuario.svelte';
 	import type { PageProps } from './$types';
 
-	const { data }: PageProps = $props();
+	const { data, form }: PageProps = $props();
 
-	let puestosL = $derived(data.puestos);
+	console.log(form);
+
+	let puestos = $derived(data.puestos);
 	let users = $derived(data.users);
 </script>
 
 <main class="space-y-6">
-	<section
-		class="w-full space-y-2 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-8"
-	>
-		{#each puestosL as puesto}
-			<div>{puesto.id} - {puesto.label} - {puesto.puesto}</div>
-		{/each}
-	</section>
+	<CrearUsuario {puestos} />
 
 	<section
-		class="w-full space-y-2 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-8"
+		class="w-full space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-8"
 	>
-		{#each users as u}
-			<p>{u.username} · {u.nombre}</p>
-		{/each}
+		<h2 class="text-xl font-medium">Usuarios</h2>
+		<div class="divide-y divide-gray-200">
+			{#each users as u}
+				<Usuario user={u} />
+			{/each}
+		</div>
 	</section>
 </main>

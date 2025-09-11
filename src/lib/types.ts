@@ -123,7 +123,7 @@ export interface UserResponse {
 export interface CrearUserRequest {
   username: string;
   password: string;
-  nombre?: string | null;
+  nombre?: string | undefined;
   puestoId: number;
 }
 

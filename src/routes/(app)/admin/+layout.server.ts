@@ -12,9 +12,6 @@ export const load: LayoutServerLoad = async ({ locals, fetch }) => {
   const tareasApi = new TareasApi(fetch);
   const puestos = await tareasApi.getPuestos();
 
-  console.log(puestos);
-
-
   return {
     puestos
   }

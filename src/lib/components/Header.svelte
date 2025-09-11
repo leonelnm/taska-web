@@ -12,25 +12,27 @@
 	};
 
 	let routes = $derived.by(() => {
-		return isAdmin
-			? [
-					{ path: '/', label: 'Inicio' },
-					{ path: '/admin/tarea', label: 'Crear Tarea' },
-					{ path: '/admin/usuarios', label: 'Usuarios' },
-					{ path: '/perfil', label: 'Perfil' }
-				]
-			: [
-					{ path: '/', label: 'Inicio' },
+		let data = [
+			{ path: '/', label: 'Inicio' },
+			{ path: '/perfil', label: 'Mi Perfil' }
+		];
 
-					{ path: '/perfil', label: 'Perfil' }
-				];
+		if (isAdmin) {
+			data = [
+				...data,
+				{ path: '/admin/tarea', label: 'Crear Tarea' },
+				{ path: '/admin/usuarios', label: 'Usuarios' }
+			];
+		}
+
+		return data;
 	});
 
 	let open = $state(false);
 </script>
 
 <header class="w-full bg-white shadow-sm">
-	<nav class="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
+	<nav class="container mx-auto flex flex-wrap items-center justify-between p-4">
 		<a href="/" class="flex items-center space-x-3">
 			<img src="/taska.webp" alt="Taska Logo" class="h-10" />
 			<span class="self-center text-xl font-semibold whitespace-nowrap text-orange-400">Taska</span>
@@ -69,13 +71,15 @@
 				id="navbar-sticky"
 				transition:slide={{ duration: 100 }}
 			>
-				<ul class="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium">
+				<ul
+					class="mt-4 flex flex-col divide-y divide-gray-200 rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium"
+				>
 					{#each routes as option}
 						<li>
 							<a
 								onclick={() => (open = !open)}
 								href={option.path}
-								class="block rounded-sm px-3 py-2 text-gray-900 hover:bg-blue-700 hover:text-white {page
+								class="block rounded-sm px-3 py-2 text-right text-gray-900 hover:bg-blue-700 hover:text-white {page
 									.url.pathname === option.path
 									? 'bg-blue-700 text-white'
 									: ''}"
@@ -86,10 +90,24 @@
 					{/each}
 					<li>
 						<button
-							class="block w-full rounded-sm px-3 py-2 text-left hover:bg-blue-700 hover:text-white"
+							class="flex w-full justify-end rounded-sm px-3 py-2 hover:bg-blue-700 hover:text-white"
 							onclick={handleLogout}
 						>
 							Cerrar sesión
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="size-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+								/>
+							</svg>
 						</button>
 					</li>
 				</ul>
@@ -115,10 +133,25 @@
 					{/each}
 					<li>
 						<button
-							class="block rounded-sm px-3 py-2 text-left hover:bg-blue-700 hover:text-white"
+							class="flex rounded-sm px-3 py-2 text-left hover:bg-blue-700 hover:text-white"
 							onclick={handleLogout}
 						>
 							Cerrar sesión
+
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="size-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+								/>
+							</svg>
 						</button>
 					</li>
 				</ul>
