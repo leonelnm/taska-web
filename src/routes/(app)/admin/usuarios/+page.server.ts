@@ -3,6 +3,7 @@ import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import type { CrearUserRequest } from "$lib/types";
 import { fail } from "@sveltejs/kit";
+import type { FetchError } from "$lib/api/fetchClient";
 
 export const load: PageServerLoad = async ({ fetch }) => {
 
@@ -62,7 +63,10 @@ export const actions: Actions = {
     }
 
     if (Object.keys(errors).length > 0) {
-      return fail(400, { errors });
+      return fail(400, {
+        data: { username, nombre, puestoId, password: '' },
+        errors
+      });
     }
 
     // Crear request
@@ -78,7 +82,17 @@ export const actions: Actions = {
     try {
       await userApi.createUser(userRequest);
     } catch (error) {
-      console.error(error);
+      const err = error as FetchError;
+
+      if (err.response?.status === 400) {
+        console.log("message", err.message);
+
+        return fail(400, {
+          data: { username, nombre, puestoId },
+          errors: { ...err.details }
+        });
+      }
+
       return fail(500, { message: 'Error inesperado al crear usuario.' });
     }
 

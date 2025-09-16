@@ -10,7 +10,7 @@
 
 	let { collapsed = true, title, children }: Props = $props();
 
-	const animationOptions = { duration: 100 };
+	const animationOptions = { duration: 100, y: -10 };
 
 	let isCollapsed = $state(collapsed);
 
@@ -36,7 +36,7 @@
 		</button>
 	</div>
 	{#if !isCollapsed}
-		<div in:fly={{ ...animationOptions, y: -10 }} out:fly={{ ...animationOptions, y: -10 }}>
+		<div transition:fly={animationOptions}>
 			{@render children?.()}
 		</div>
 	{/if}

@@ -136,3 +136,10 @@ export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface ErrorResponse {
+  message: string,
+  status: string,
+  timestamp: string,
+  details?: Record<string, string>;
+}

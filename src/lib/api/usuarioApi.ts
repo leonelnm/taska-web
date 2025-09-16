@@ -27,7 +27,7 @@ export class UserApi {
         body: JSON.stringify(data),
       });
     } catch (error) {
-      console.error("Error creating user:", error);
+      console.error("Error creating user:", (error as Error).message);
       throw error;
     }
   }

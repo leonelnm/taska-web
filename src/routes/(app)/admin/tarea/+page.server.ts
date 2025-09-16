@@ -3,10 +3,7 @@ import type { PageServerLoad } from "./$types";
 import { TareasApi } from "$lib/api/tareasApi";
 import { RecurrenceType, type CrearTareaRequest, type DiaSemana } from "$lib/types";
 
-export const load: PageServerLoad = async ({ fetch, parent }) => {
-
-  const parD = await parent()
-  console.log({ parD });
+export const load: PageServerLoad = async ({ fetch }) => {
 
   const tareasApi = new TareasApi(fetch);
   const turnos = await tareasApi.getTurnos();

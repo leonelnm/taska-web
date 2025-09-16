@@ -1,23 +1,54 @@
 <script lang="ts">
 	import type { Puesto } from '$lib/types';
 	import CardCollapse from '$lib/components/CardCollapse.svelte';
+	import { translate } from '$lib/i18n/errors';
+	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { fly } from 'svelte/transition';
 
 	interface Props {
 		puestos: Puesto[];
+		data?: Record<string, any> | undefined;
+		formErrors?: Record<string, string> | undefined;
 	}
 
-	let { puestos }: Props = $props();
+	let { puestos, formErrors, data }: Props = $props();
 
-	let username = $state('');
-	let name = $state('');
-	let puesto = $state('');
+	let username = $state(data?.username || '');
+	let name = $state(data?.nombre || '');
+	let puesto = $state(data?.puestoId || '');
 	let password = $state('');
 	let password2 = $state('');
 
 	let creating = $state(false);
-
-	let formErrors: Record<string, string> = $state({});
+	let formErrorsState: Record<string, string> = $state(formErrors ? { ...formErrors } : {});
 	let formMessage: string | undefined = $state(undefined);
+	let formSuccess: string | undefined = $state(undefined);
+
+	let showPasswordValidations = $state(false);
+
+	const animationOptions = { duration: 100, y: -10 };
+
+	const validations = $state({
+		minLength: false,
+		hasUppercase: false,
+		hasLowercase: false,
+		hasNumber: false
+	});
+
+	const handleChange = () => {
+		const minLength = 8;
+		const hasUppercase = /[A-Z]/.test(password);
+		const hasLowercase = /[a-z]/.test(password);
+		const hasNumber = /\d/.test(password);
+
+		validations.minLength = password.length >= minLength;
+		validations.hasUppercase = hasUppercase;
+		validations.hasLowercase = hasLowercase;
+		validations.hasNumber = hasNumber;
+
+		showPasswordValidations = Object.values(validations).some((v) => !v);
+	};
 
 	const handleUsername = () => {
 		if (username) {
@@ -26,70 +57,118 @@
 
 		let normalized = name.trim().toLowerCase();
 		normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-		const firstWord = normalized.split(/\s+/)[0];
-		username = firstWord;
+		const words = normalized.split(/\s+/);
+		const firstWord = words[0] || '';
+
+		let generated = firstWord;
+
+		let minUsernameLength = 4;
+		if (firstWord.length < minUsernameLength && words.length > 1) {
+			const secondWord = words[1] || '';
+			generated = (firstWord + secondWord).slice(0, minUsernameLength);
+		}
+
+		while (generated.length < 4) {
+			generated += '0';
+		}
+
+		username = generated;
 	};
 
 	const validateForm = () => {
-		formErrors = {};
+		formErrorsState = {};
 		formMessage = undefined;
 
 		// Nombre
 		if (!name.trim()) {
-			formErrors.name = 'El nombre es obligatorio.';
+			formErrorsState.name = 'error.username.required';
 		}
 
 		// Username
 		if (!username.trim()) {
-			formErrors.username = 'El usuario es obligatorio.';
+			formErrorsState.username = 'error.username.required';
 		} else {
-			if (username.length < 4) formErrors.username = 'El usuario debe tener al menos 4 caracteres.';
-			else if (username.length > 20)
-				formErrors.username = 'El usuario debe tener como máximo 20 caracteres.';
-			else if (!/^[a-z0-9_-]*$/.test(username)) {
-				formErrors.username =
-					'El usuario solo puede contener minúsculas, números, guiones bajos (_) y guiones (-).';
+			if (username.length < 4) {
+				formErrorsState.username = 'error.username.min_length';
+			} else if (username.length > 20) {
+				formErrorsState.username = 'error.username.max_length';
+			} else if (!/^[a-z0-9_-]*$/.test(username)) {
+				formErrorsState.username = 'error.username.invalid_chars';
 			}
 		}
 
 		// Puesto
 		if (!puesto) {
-			formErrors.puesto = 'El puesto es obligatorio.';
+			formErrorsState.puesto = 'error.puesto.required';
 		}
 
 		// Password
 		if (!password) {
-			formErrors.password = 'La contraseña es obligatoria.';
+			formErrorsState.password = 'error.password.required';
 		} else {
 			if (password.length < 8) {
-				formErrors.password = 'La contraseña debe tener al menos 8 caracteres.';
+				formErrorsState.password = 'error.password.min_length';
 			} else if (/\s/.test(password)) {
-				formErrors.password = 'La contraseña no puede contener espacios.';
+				formErrorsState.password = 'error.password.no_spaces';
 			} else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-				formErrors.password =
-					'La contraseña debe tener al menos una mayúscula, una minúscula y un número.';
+				formErrorsState.password = 'error.password.complexity';
 			}
 		}
 
+		console.log({ password, password2 });
+
 		// Confirmación de contraseña
 		if (password !== password2) {
-			formErrors.password2 = 'Las contraseñas no coinciden.';
+			formErrorsState.password2 = 'error.password.mismatch';
 		}
 
-		return Object.keys(formErrors).length === 0;
+		return Object.keys(formErrorsState).length === 0;
 	};
 
-	const handleSubmit = (event: Event) => {
+	const enhanceSubmit: SubmitFunction = () => {
+		creating = true;
+
+		resetErrors();
 		if (!validateForm()) {
-			event.preventDefault();
 			formMessage = 'Por favor, corrige los errores en el formulario.';
+			creating = false;
 			return;
 		}
+
+		return async ({ result, update }) => {
+			if (result.type === 'failure') {
+				formErrorsState = result.data?.errors ?? {};
+				formMessage = result.data?.message ?? 'Error al crear el usuario.';
+			} else if (result.type === 'success') {
+				formSuccess = 'Usuario creado correctamente.';
+			}
+
+			await update();
+			creating = false;
+		};
+	};
+
+	const resetErrors = () => {
+		console.log('limpiando errores');
+		console.log('passwords', password, password2);
+
+		formErrorsState = {};
+		formMessage = undefined;
 	};
 </script>
 
 <CardCollapse title="Crear Usuario" collapsed={false}>
-	<form class="space-y-5" method="POST" onsubmit={handleSubmit}>
+	<form class="space-y-5" method="POST" use:enhance={enhanceSubmit}>
+		{#if formSuccess}
+			<div class="rounded-md bg-green-50 p-4">
+				<div class="flex">
+					<div class="ml-3">
+						<h3 class="text-sm font-medium text-green-800">{formSuccess}</h3>
+					</div>
+				</div>
+			</div>
+		{/if}
+
 		{#if formMessage}
 			<div class="rounded-md bg-red-50 p-4">
 				<div class="flex">
@@ -111,7 +190,9 @@
 				required
 				autocomplete="off"
 			/>
-			{#if formErrors.name}<p class="mt-1 text-sm text-red-600">{formErrors.name}</p>{/if}
+			{#if formErrorsState.name}<p class="mt-1 text-sm text-red-600">
+					{translate(formErrorsState.name)}
+				</p>{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -124,7 +205,9 @@
 				required
 				autocomplete="off"
 			/>
-			{#if formErrors.username}<p class="mt-1 text-sm text-red-600">{formErrors.username}</p>{/if}
+			{#if formErrorsState.username}<p class="mt-1 text-sm text-red-600">
+					{translate(formErrorsState.username)}
+				</p>{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -141,7 +224,9 @@
 					<option value={puesto.id}>{puesto.label}</option>
 				{/each}
 			</select>
-			{#if formErrors.puesto}<p class="mt-1 text-sm text-red-600">{formErrors.puesto}</p>{/if}
+			{#if formErrorsState.puesto}<p class="mt-1 text-sm text-red-600">
+					{translate(formErrorsState.puesto)}
+				</p>{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -154,9 +239,30 @@
 				bind:value={password}
 				required
 				autocomplete="off"
+				oninput={handleChange}
 			/>
-			{#if formErrors.password}<p class="mt-1 text-sm text-red-600">{formErrors.password}</p>{/if}
-			{#if formErrors.password2}<p class="mt-1 text-sm text-red-600">{formErrors.password2}</p>{/if}
+			{#if showPasswordValidations}
+				<ul class="text-xs" transition:fly={animationOptions}>
+					<li class={validations.hasUppercase ? 'text-green-600' : 'text-red-600'}>
+						Al menos una letra mayúscula
+					</li>
+					<li class={validations.hasLowercase ? 'text-green-600' : 'text-red-600'}>
+						Al menos una letra minúscula
+					</li>
+					<li class={validations.hasNumber ? 'text-green-600' : 'text-red-600'}>
+						Al menos un número
+					</li>
+					<li class={validations.minLength ? 'text-green-600' : 'text-red-600'}>
+						Mínimo 8 caracteres
+					</li>
+				</ul>
+			{/if}
+			{#if formErrorsState.password}<p class="mt-1 text-sm text-red-600">
+					{translate(formErrorsState.password)}
+				</p>{/if}
+			{#if formErrorsState.password2}<p class="mt-1 text-sm text-red-600">
+					{translate(formErrorsState.password2)}
+				</p>{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -169,7 +275,9 @@
 				required
 				autocomplete="off"
 			/>
-			{#if formErrors.password2}<p class="mt-1 text-sm text-red-600">{formErrors.password2}</p>{/if}
+			{#if formErrorsState.password2}<p class="mt-1 text-sm text-red-600">
+					{translate(formErrorsState.password2)}
+				</p>{/if}
 		</div>
 
 		<button
