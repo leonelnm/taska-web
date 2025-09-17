@@ -47,7 +47,9 @@ export class Fetch {
       return await fetchClient<T>(this.#fetch, url, options);
     } catch (error) {
       const err = error as FetchError;
-      if (err.response?.status === 400) {
+      if (err.response?.status === 400
+        || err.response?.status === 401
+      ) {
         const errorResponse = await err.response.json() as ErrorResponse;
         err.message = errorResponse.message ? errorResponse.message : err.message;
         err.details = errorResponse.details;

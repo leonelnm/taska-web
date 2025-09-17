@@ -38,11 +38,13 @@
 			<span class="self-center text-xl font-semibold whitespace-nowrap text-orange-400">Taska</span>
 		</a>
 		<div class="flex items-center space-x-3 md:hidden">
-			<a
-				href="/admin/tarea"
-				class="rounded-lg bg-gradient-to-br from-pink-500 to-orange-400 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-pink-200 focus:outline-none"
-				>Agregar tarea</a
-			>
+			{#if isAdmin}
+				<a
+					href="/admin/tarea"
+					class="rounded-lg bg-gradient-to-br from-pink-500 to-orange-400 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-pink-200 focus:outline-none"
+					>Agregar tarea</a
+				>
+			{/if}
 
 			<button
 				type="button"

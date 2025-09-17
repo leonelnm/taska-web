@@ -26,7 +26,7 @@ export const actions: Actions = {
     }
 
     try {
-      const { token, refreshToken } = await loginApi(new Fetch(fetch), username, password);
+      const { token, refreshToken } = await loginApi(new Fetch(fetch), username.trim(), password.trim());
 
       cookies.set(Constants.COOKIE_SESSION_NAME, token, {
         path: '/',
@@ -44,14 +44,13 @@ export const actions: Actions = {
         maxAge: 60 * 60 * 24 * 7
       });
 
-
     } catch (err) {
 
       const error = err as FetchError
 
       if (error.response?.status === 401) {
         return fail(401, {
-          error: 'Credenciales incorrectas.'
+          error: error.message || 'error.auth.bad_credentials'
         });
       } else {
         console.log({ error });

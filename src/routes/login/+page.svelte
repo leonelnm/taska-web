@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import ButtonLoading from '$lib/components/ButtonLoading.svelte';
+	import { translate } from '$lib/i18n/errors';
 
 	let { form } = $props();
 
@@ -30,7 +31,6 @@
 				class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
 				placeholder="usuario"
 				required
-				value="admin"
 				autocomplete="off"
 			/>
 		</div>
@@ -42,14 +42,13 @@
 				id="password"
 				class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
 				required
-				value="password"
 				placeholder="••••••••"
 			/>
 		</div>
 
 		{#if form?.error}
 			<div class="text-center text-sm text-red-600">
-				{form.error}
+				{translate(form.error)}
 			</div>
 		{/if}
 
