@@ -102,7 +102,7 @@ export interface LoginResponse {
 }
 
 export interface ProfileResponse {
-  usermame: string
+  username: string
   name: string
   isAdmin: boolean
   puesto: PuestoType

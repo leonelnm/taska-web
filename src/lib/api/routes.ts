@@ -5,7 +5,7 @@ export const Routes = {
   },
   PROFILE: {
     BASE: '/profile/me',         // GET
-    CHANGE_PASSWORD: '/profile/me', // POST
+    CHANGE_PASSWORD: '/profile/me/password', // POST
   },
   USERS: {
     BASE: '/users',              // GET

@@ -3,6 +3,7 @@
 	import { getRecurrences } from '$lib/api/utils';
 	import { RecurrenceType, type Puesto, type Turno } from '$lib/types';
 	import { fade, fly } from 'svelte/transition';
+	import ButtonLoading from './ButtonLoading.svelte';
 
 	interface Props {
 		puestos: Puesto[];
@@ -313,12 +314,11 @@
 			</div>
 		{/if}
 
-		<button
+		<ButtonLoading
 			type="submit"
-			class="w-full rounded-md bg-blue-600 py-3 font-medium text-white shadow-md transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none invalid:focus:ring-red-500 disabled:bg-blue-300"
-			disabled={creating}
-		>
-			Guardar Tarea
-		</button>
+			loading={creating}
+			label="Guardar Tarea"
+			labelLoading="Guardando Tarea"
+		/>
 	</form>
 </div>

@@ -5,7 +5,8 @@ export const load: LayoutServerLoad = async ({ locals }) => {
   const { user } = locals
 
   return {
-    isAdmin: user?.isAdmin
+    isAdmin: user?.isAdmin,
+    user
   }
 
 };

@@ -3,16 +3,16 @@
 	import { fly } from 'svelte/transition';
 
 	interface Props {
-		collapsed?: boolean;
+		collapsed: boolean;
 		title: string;
 		children: Snippet;
 	}
 
-	let { collapsed = true, title, children }: Props = $props();
+	let { collapsed = $bindable(false), title, children }: Props = $props();
 
 	const animationOptions = { duration: 100, y: -10 };
 
-	let isCollapsed = $state(collapsed);
+	let isCollapsed = $derived(collapsed);
 
 	const handleClose = () => {
 		isCollapsed = !isCollapsed;

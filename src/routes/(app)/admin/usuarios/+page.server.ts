@@ -85,8 +85,6 @@ export const actions: Actions = {
       const err = error as FetchError;
 
       if (err.response?.status === 400) {
-        console.log("message", err.message);
-
         return fail(400, {
           data: { username, nombre, puestoId },
           errors: { ...err.details }

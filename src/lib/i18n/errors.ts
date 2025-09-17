@@ -21,9 +21,10 @@ const errorMessages: Record<string, string> = {
   "error.password.min_length": "La contraseña es demasiado corta.",
   "error.password.no_spaces": "La contraseña no puede contener espacios.",
   "error.password.complexity": "La contraseña no cumple con los requisitos de seguridad.",
-  "error.password.same_before": "La nueva contraseña no puede ser igual a la anterior.",
   "error.password.incorrect": "La contraseña es incorrecta.",
   "error.password.mismatch": "Las contraseñas no coinciden.",
+  "error.password.invalid": "La contraseña no es válida.",
+  "error.password.same_as_current": "La nueva contraseña no puede ser igual a la actual.",
 
   "error.puesto.required": "El puesto es obligatorio.",
 

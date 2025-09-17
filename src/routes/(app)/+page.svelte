@@ -6,7 +6,7 @@
 	const { data }: PageProps = $props();
 </script>
 
-<div class="container mx-auto space-y-6">
+<div class="space-y-6">
 	<Filtro
 		turnos={data.turnos}
 		puestos={data.puestos}

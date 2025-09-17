@@ -29,7 +29,7 @@ export class ProfileApi {
       return true;
     } catch (error) {
       console.error("Error changing password:", error);
-      return false;
+      throw error;
     }
   }
 }

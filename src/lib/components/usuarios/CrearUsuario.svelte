@@ -4,7 +4,8 @@
 	import { translate } from '$lib/i18n/errors';
 	import { enhance } from '$app/forms';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { fly } from 'svelte/transition';
+	import ButtonLoading from '../ButtonLoading.svelte';
+	import InputPassword from './InputPassword.svelte';
 
 	interface Props {
 		puestos: Puesto[];
@@ -20,34 +21,17 @@
 	let password = $state('');
 	let password2 = $state('');
 
+	let passwordIsValid = $state(false);
+
 	let creating = $state(false);
 	let formErrorsState: Record<string, string> = $state(formErrors ? { ...formErrors } : {});
 	let formMessage: string | undefined = $state(undefined);
 	let formSuccess: string | undefined = $state(undefined);
 
-	let showPasswordValidations = $state(false);
+	let collapsed = $state(true);
 
-	const animationOptions = { duration: 100, y: -10 };
-
-	const validations = $state({
-		minLength: false,
-		hasUppercase: false,
-		hasLowercase: false,
-		hasNumber: false
-	});
-
-	const handleChange = () => {
-		const minLength = 8;
-		const hasUppercase = /[A-Z]/.test(password);
-		const hasLowercase = /[a-z]/.test(password);
-		const hasNumber = /\d/.test(password);
-
-		validations.minLength = password.length >= minLength;
-		validations.hasUppercase = hasUppercase;
-		validations.hasLowercase = hasLowercase;
-		validations.hasNumber = hasNumber;
-
-		showPasswordValidations = Object.values(validations).some((v) => !v);
+	const handlePasswordValidation = (valid: boolean) => {
+		passwordIsValid = valid;
 	};
 
 	const handleUsername = () => {
@@ -76,9 +60,6 @@
 	};
 
 	const validateForm = () => {
-		formErrorsState = {};
-		formMessage = undefined;
-
 		// Nombre
 		if (!name.trim()) {
 			formErrorsState.name = 'error.username.required';
@@ -103,21 +84,10 @@
 		}
 
 		// Password
-		if (!password) {
-			formErrorsState.password = 'error.password.required';
-		} else {
-			if (password.length < 8) {
-				formErrorsState.password = 'error.password.min_length';
-			} else if (/\s/.test(password)) {
-				formErrorsState.password = 'error.password.no_spaces';
-			} else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-				formErrorsState.password = 'error.password.complexity';
-			}
+		if (!passwordIsValid) {
+			formErrorsState.password = 'error.password.invalid';
 		}
 
-		console.log({ password, password2 });
-
-		// Confirmación de contraseña
 		if (password !== password2) {
 			formErrorsState.password2 = 'error.password.mismatch';
 		}
@@ -125,14 +95,14 @@
 		return Object.keys(formErrorsState).length === 0;
 	};
 
-	const enhanceSubmit: SubmitFunction = () => {
+	const enhanceSubmit: SubmitFunction = ({ cancel }) => {
 		creating = true;
 
 		resetErrors();
 		if (!validateForm()) {
 			formMessage = 'Por favor, corrige los errores en el formulario.';
 			creating = false;
-			return;
+			cancel();
 		}
 
 		return async ({ result, update }) => {
@@ -149,15 +119,13 @@
 	};
 
 	const resetErrors = () => {
-		console.log('limpiando errores');
-		console.log('passwords', password, password2);
-
 		formErrorsState = {};
 		formMessage = undefined;
+		formSuccess = undefined;
 	};
 </script>
 
-<CardCollapse title="Crear Usuario" collapsed={false}>
+<CardCollapse title="Crear Usuario" bind:collapsed>
 	<form class="space-y-5" method="POST" use:enhance={enhanceSubmit}>
 		{#if formSuccess}
 			<div class="rounded-md bg-green-50 p-4">
@@ -190,9 +158,11 @@
 				required
 				autocomplete="off"
 			/>
-			{#if formErrorsState.name}<p class="mt-1 text-sm text-red-600">
+			{#if formErrorsState.name}
+				<p class="mt-1 text-sm text-red-600">
 					{translate(formErrorsState.name)}
-				</p>{/if}
+				</p>
+			{/if}
 		</div>
 
 		<div class="space-y-2">
@@ -229,41 +199,11 @@
 				</p>{/if}
 		</div>
 
-		<div class="space-y-2">
-			<label for="password" class="block font-medium text-gray-700">Contraseña</label>
-			<input
-				type="password"
-				name="password"
-				placeholder="password"
-				class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none invalid:focus:ring-red-500"
-				bind:value={password}
-				required
-				autocomplete="off"
-				oninput={handleChange}
-			/>
-			{#if showPasswordValidations}
-				<ul class="text-xs" transition:fly={animationOptions}>
-					<li class={validations.hasUppercase ? 'text-green-600' : 'text-red-600'}>
-						Al menos una letra mayúscula
-					</li>
-					<li class={validations.hasLowercase ? 'text-green-600' : 'text-red-600'}>
-						Al menos una letra minúscula
-					</li>
-					<li class={validations.hasNumber ? 'text-green-600' : 'text-red-600'}>
-						Al menos un número
-					</li>
-					<li class={validations.minLength ? 'text-green-600' : 'text-red-600'}>
-						Mínimo 8 caracteres
-					</li>
-				</ul>
-			{/if}
-			{#if formErrorsState.password}<p class="mt-1 text-sm text-red-600">
-					{translate(formErrorsState.password)}
-				</p>{/if}
-			{#if formErrorsState.password2}<p class="mt-1 text-sm text-red-600">
-					{translate(formErrorsState.password2)}
-				</p>{/if}
-		</div>
+		<InputPassword
+			bind:password
+			formErrors={formErrorsState}
+			validationCallback={handlePasswordValidation}
+		/>
 
 		<div class="space-y-2">
 			<label for="password2" class="block font-medium text-gray-700">Repetir Contraseña</label>
@@ -280,12 +220,11 @@
 				</p>{/if}
 		</div>
 
-		<button
+		<ButtonLoading
 			type="submit"
-			class="w-full rounded-md bg-blue-600 py-3 font-medium text-white shadow-md transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none invalid:focus:ring-red-500 disabled:bg-blue-300"
-			disabled={creating}
-		>
-			Crear Usuario
-		</button>
+			loading={creating}
+			label="Crear Usuario"
+			labelLoading="Creando Usuario"
+		/>
 	</form>
 </CardCollapse>
