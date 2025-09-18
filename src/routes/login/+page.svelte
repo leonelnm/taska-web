@@ -20,8 +20,25 @@
 			};
 		}}
 	>
-		<img class="mx-auto h-30 w-30" src="/taska.webp" alt="Taska Logo" />
-		<h1 class="text-center text-xl font-medium">Iniciar sesión</h1>
+		<div class="mb-12 flex flex-col items-center justify-center gap-2 text-amber-600">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="size-14"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+				/>
+			</svg>
+
+			<h1 class="self-center text-3xl font-semibold whitespace-nowrap">Taska</h1>
+		</div>
+
 		<div class="mb-5">
 			<label for="username" class="mb-2 block text-sm font-medium text-gray-900">Usuario</label>
 			<input

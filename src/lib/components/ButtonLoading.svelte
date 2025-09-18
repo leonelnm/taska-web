@@ -11,7 +11,7 @@
 
 <button
 	{type}
-	class="w-full rounded-md bg-amber-600 py-3 font-medium text-white shadow-md transition-colors hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:outline-none invalid:focus:ring-red-500 disabled:bg-amber-300"
+	class="w-full rounded-md bg-amber-600 py-3 font-medium text-white shadow-md transition-colors hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:outline-none invalid:focus:ring-red-500 disabled:bg-amber-900"
 	disabled={loading}
 >
 	{loading ? labelLoading : label}

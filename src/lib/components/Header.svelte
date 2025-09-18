@@ -33,9 +33,23 @@
 
 <header class="w-full bg-white shadow-sm">
 	<nav class="container mx-auto flex flex-wrap items-center justify-between p-4">
-		<a href="/" class="flex items-center space-x-3">
-			<img src="/taska.webp" alt="Taska Logo" class="h-10" />
-			<span class="self-center text-xl font-semibold whitespace-nowrap text-orange-400">Taska</span>
+		<a href="/" class="flex items-center space-x-1 px-3 py-2 text-amber-600">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke-width="1.5"
+				stroke="currentColor"
+				class="size-6"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+				/>
+			</svg>
+
+			<span class="self-center text-xl font-semibold whitespace-nowrap">Taska</span>
 		</a>
 		<div class="flex items-center space-x-3 md:hidden">
 			{#if isAdmin}
@@ -81,9 +95,9 @@
 							<a
 								onclick={() => (open = !open)}
 								href={option.path}
-								class="block rounded-sm px-3 py-2 text-right text-gray-900 hover:bg-blue-700 hover:text-white {page
+								class="block rounded-sm px-3 py-2 text-right text-gray-900 hover:bg-amber-700 hover:text-white {page
 									.url.pathname === option.path
-									? 'bg-blue-700 text-white'
+									? 'bg-amber-700 text-white'
 									: ''}"
 							>
 								{option.label}
@@ -92,7 +106,7 @@
 					{/each}
 					<li>
 						<button
-							class="flex w-full justify-end rounded-sm px-3 py-2 hover:bg-blue-700 hover:text-white"
+							class="flex w-full justify-end rounded-sm px-3 py-2 hover:bg-amber-700 hover:text-white"
 							onclick={handleLogout}
 						>
 							Cerrar sesión
@@ -126,8 +140,8 @@
 						<li>
 							<a
 								href={option.path}
-								class="block rounded-sm px-3 py-2 hover:bg-blue-700 hover:text-white
-									{page.url.pathname === option.path ? 'bg-blue-700 text-white' : 'text-gray-900'}"
+								class="block rounded-sm px-3 py-2 hover:bg-amber-700 hover:text-white
+									{page.url.pathname === option.path ? 'bg-amber-700 text-white' : 'text-gray-900'}"
 							>
 								{option.label}
 							</a>
@@ -135,7 +149,7 @@
 					{/each}
 					<li>
 						<button
-							class="flex rounded-sm px-3 py-2 text-left hover:bg-blue-700 hover:text-white"
+							class="flex rounded-sm px-3 py-2 text-left hover:bg-amber-700 hover:text-white"
 							onclick={handleLogout}
 						>
 							Cerrar sesión

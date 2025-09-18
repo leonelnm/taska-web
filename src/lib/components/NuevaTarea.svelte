@@ -245,7 +245,7 @@
 						class={`me-2 mb-2 rounded-full px-5 py-2.5 text-center text-sm font-medium transition-colors focus:ring-4 focus:outline-none
 							${
 								recurrenciaSelected === recurrencia.recurrenceType
-									? 'bg-blue-700  text-white hover:bg-blue-800 focus:ring-blue-300'
+									? 'bg-amber-600  text-white hover:bg-amber-800 focus:ring-amber-500'
 									: 'bg-gray-100  text-gray-800 hover:bg-gray-200 focus:ring-gray-300'
 							}
 						`}
