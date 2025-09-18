@@ -56,12 +56,27 @@
 	};
 </script>
 
-<div class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-8">
-	<h2 class="text-lg font-medium">Cambiar Contraseña</h2>
+<div
+	class="w-full rounded-lg border-t-4 border-yellow-300 bg-yellow-50 p-4 text-yellow-800 shadow-sm sm:p-6 md:p-8"
+>
+	<div class="flex items-center gap-2">
+		<svg
+			class="h-4 w-4 shrink-0"
+			aria-hidden="true"
+			xmlns="http://www.w3.org/2000/svg"
+			fill="currentColor"
+			viewBox="0 0 20 20"
+		>
+			<path
+				d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+			/>
+		</svg>
+		<h2 class="text-lg font-medium">Cambiar Contraseña</h2>
+	</div>
 
 	<form class="space-y-5" method="POST" onsubmit={handleSubmit}>
 		<div class="mt-4 space-y-2">
-			<label for="currentPassword" class="block font-medium text-gray-700">Contraseña Actual</label>
+			<label for="currentPassword" class="block font-medium">Contraseña Actual</label>
 			<input
 				type="password"
 				name="currentPassword"
@@ -85,7 +100,7 @@
 		/>
 
 		<div class="space-y-2">
-			<label for="password2" class="block font-medium text-gray-700">Repetir Contraseña</label>
+			<label for="password2" class="block font-medium">Repetir Contraseña</label>
 			<input
 				type="password"
 				name="password2"

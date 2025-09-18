@@ -5,6 +5,7 @@ import { config } from '$lib/config';
 import { ProfileApi } from '$lib/api/profileApi';
 import { refreshTokenApi } from '$lib/api/authApi';
 import { Fetch } from '$lib/api/fetchClient';
+import { Routes } from '$lib/api/routes';
 
 const profileCache = new Map<string, { data: ProfileResponse; expiresAt: number }>();
 const PROFILE_CACHE_TTL = 60 * 1000;
@@ -89,8 +90,10 @@ export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
 
     const response = await fetch(newRequest);
 
+    const isLoginPath = request.url.endsWith(Routes.AUTH.LOGIN);
+
     // Si el token expiró, intentamos refrescarlo.
-    if (!response.ok && response.status === 401) {
+    if (!isLoginPath && !response.ok && response.status === 401) {
       try {
         console.log('INIT refresh...', request.url);
         const refreshResponse = await refreshTokenApi(new Fetch(fetch));

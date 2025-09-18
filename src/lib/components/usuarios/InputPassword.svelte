@@ -45,7 +45,7 @@
 </script>
 
 <div class="space-y-2">
-	<label for={inputName} class="block font-medium text-gray-700">Contraseña</label>
+	<label for={inputName} class="block font-medium">Contraseña</label>
 	<input
 		type="password"
 		name={inputName}

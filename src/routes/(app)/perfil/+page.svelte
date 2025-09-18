@@ -8,7 +8,7 @@
 
 <div class="space-y-6">
 	<div class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-8">
-		<div class="flex items-center gap-6">
+		<div class="flex items-center justify-between sm:justify-start sm:gap-6">
 			<h1 class="text-xl font-medium">Perfil de Usuario</h1>
 			{#if user?.isAdmin}
 				<span class="rounded-full bg-orange-50 px-3 py-1 text-xs">Administrador</span>
