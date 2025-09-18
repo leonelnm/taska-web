@@ -25,9 +25,7 @@ async function validateToken(fetchFn: typeof fetch, token: string): Promise<Cust
 
   try {
     const profileApi = new ProfileApi(fetchFn);
-    console.log("INIT getProfile");
     const response = await profileApi.getProfile()
-    console.log("response getProfile", { response });
 
     profileCache.set(token, { data: response, expiresAt: now + PROFILE_CACHE_TTL });
 
@@ -79,7 +77,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
 
   if (request.url.startsWith(config.BASE_PATH)) {
-    console.log('handleFetch API -> ', request.url);
     const sessionToken = event.cookies.get(Constants.COOKIE_SESSION_NAME);
 
     const newRequest = request.clone();
@@ -95,9 +92,7 @@ export const handleFetch: HandleFetch = async ({ request, event, fetch }) => {
     // Si el token expiró, intentamos refrescarlo.
     if (!isLoginPath && !response.ok && response.status === 401) {
       try {
-        console.log('INIT refresh...', request.url);
         const refreshResponse = await refreshTokenApi(new Fetch(fetch));
-        console.log('OK refresh', request.url);
         const { token: newAuthToken, refreshToken } = refreshResponse;
 
         // Guarda el nuevo token de sesión.

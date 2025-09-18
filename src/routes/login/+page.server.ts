@@ -45,17 +45,12 @@ export const actions: Actions = {
       });
 
     } catch (err) {
-
       const error = err as FetchError
-
       if (error.response?.status === 401) {
         return fail(401, {
           error: error.message || 'error.auth.bad_credentials'
         });
-      } else {
-        console.log({ error });
       }
-
 
       return fail(500, {
         error: 'Ha ocurrido un error inesperado. Por favor, inténtalo de nuevo más tarde.'

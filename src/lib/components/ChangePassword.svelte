@@ -31,8 +31,6 @@
 			formErrorsState.password = 'error.password.invalid';
 		}
 
-		console.log(newPassword, confirmPassword);
-
 		if (newPassword !== confirmPassword) {
 			formErrorsState.password2 = 'error.password.mismatch';
 		}
@@ -41,7 +39,6 @@
 	};
 
 	const handleSubmit = (event: Event) => {
-		console.log('INIT cambiando contraseña');
 		changingPassword = true;
 		formErrorsState = {};
 		if (!validate()) {
@@ -49,9 +46,6 @@
 			changingPassword = false;
 			return;
 		}
-
-		console.log('END cambiando contraseña');
-
 		changingPassword = false;
 	};
 </script>
