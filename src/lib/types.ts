@@ -52,6 +52,7 @@ export interface FiltroTareaRequest {
   tipoRecurrencia?: RecurrenceType
   diaSemana?: DiaSemana;
   completada?: boolean;
+  fecha?: string;
 }
 
 export enum RecurrenceType {
