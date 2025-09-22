@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ fetch, url, locals }) => {
 
   const isAdmin = locals.user?.isAdmin
 
-  if (filtro.fecha === undefined) {
+  if (!isAdmin && filtro.fecha === undefined) {
     filtro.fecha = nowToString(); // Formato YYYY-MM-DD
   }
 
