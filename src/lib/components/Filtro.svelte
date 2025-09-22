@@ -5,6 +5,8 @@
 	import SelectField from './SelectField.svelte';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
+	import { nowPlusYearToString } from '$lib/api/dateUtils';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	interface Props {
 		collapsed?: boolean;
@@ -12,26 +14,19 @@
 		turnos: Turno[];
 		filtroState?: FiltroTareaRequest;
 		isAdmin?: boolean;
+		loading?: boolean;
 	}
 
-	let { puestos, turnos, filtroState, collapsed = true, isAdmin = false }: Props = $props();
+	let {
+		puestos,
+		turnos,
+		filtroState,
+		isAdmin = false,
+		loading = $bindable(false)
+	}: Props = $props();
 
 	const animationOptions = { duration: 100 };
-
-	const initialStateFilter: FiltroTareaRequest = {
-		turnoId: undefined,
-		puestoId: undefined,
-		tipoRecurrencia: undefined,
-		diaSemana: undefined,
-		completada: undefined
-	};
-
-	let isCollapsed = $state(
-		!filtroState ||
-			Object.entries(filtroState).every(
-				([key, value]) => value === initialStateFilter[key as keyof FiltroTareaRequest]
-			)
-	);
+	const maxDate = nowPlusYearToString();
 
 	const recurrencias = getRecurrences();
 
@@ -42,19 +37,80 @@
 		{ label: 'No', value: false }
 	];
 
+	const initialStateFilter: FiltroTareaRequest = {
+		turnoId: undefined,
+		puestoId: undefined,
+		tipoRecurrencia: undefined,
+		diaSemana: undefined,
+		completada: undefined,
+		fechaInicio: undefined,
+		fechaFin: undefined
+	};
+
+	let isCollapsed = $state(
+		!filtroState ||
+			Object.entries(filtroState).every(
+				([key, value]) => value === initialStateFilter[key as keyof FiltroTareaRequest]
+			)
+	);
+
 	let filtro: FiltroTareaRequest = $state({
 		...initialStateFilter,
 		...filtroState
 	});
 	let isSearching = $state(false);
 
+	let errors: Record<string, string> = $state({});
+
+	$effect(() => {
+		loading = isSearching;
+	});
+
+	const showMessageFechas = $derived.by(
+		() => filtro.fechaInicio === undefined && filtro.fechaFin === undefined
+	);
+
 	const handleReset = async (event: Event) => {
 		event.preventDefault();
 		filtro = { ...initialStateFilter };
+		errors = {};
 	};
 
 	const handleClose = () => {
 		isCollapsed = !isCollapsed;
+	};
+
+	const validate = () => {
+		// Validar que la fecha de inicio no sea posterior a la fecha de fin
+		if (filtro.fechaInicio && filtro.fechaFin) {
+			if (filtro.fechaInicio > filtro.fechaFin) {
+				errors.fechaFin = 'La fecha de fin no puede ser anterior a la fecha de inicio.';
+				return false;
+			}
+		}
+		return true;
+	};
+
+	const enhanceSubmit: SubmitFunction = ({ cancel }) => {
+		isSearching = true;
+
+		if (!validate()) {
+			isSearching = false;
+			cancel();
+		}
+
+		return async ({ result }) => {
+			if (result.type === 'success') {
+				const { params } = result.data as {
+					params: string;
+				};
+
+				await goto('?' + params, {
+					replaceState: true
+				});
+			}
+			isSearching = false;
+		};
 	};
 </script>
 
@@ -79,26 +135,62 @@
 		<form
 			method="POST"
 			action="?/filter"
-			class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:flex"
+			class="grid grid-cols-1 gap-4 sm:grid-cols-1 lg:grid-cols-2 2xl:flex"
 			onreset={handleReset}
 			in:fly={{ ...animationOptions, y: -10 }}
 			out:fly={{ ...animationOptions, y: -10 }}
-			use:enhance={() => {
-				isSearching = true;
-				return async ({ result, update }) => {
-					if (result.type === 'success') {
-						const { params } = result.data as {
-							params: string;
-						};
-
-						goto('?' + params, {
-							replaceState: true
-						});
-					}
-					isSearching = false;
-				};
-			}}
+			use:enhance={enhanceSubmit}
 		>
+			{#if isAdmin}
+				<div class="space-y-2">
+					<div class="flex justify-between gap-2">
+						<div class="basis-xs space-y-0.5">
+							<label for="fecha-inicio" class="block text-xs font-medium text-gray-700"
+								>Fecha Inicio</label
+							>
+							<div class="flex-col">
+								<input
+									type="date"
+									id="fecha-inicio"
+									name="fechaInicio"
+									min="2025-09-01"
+									max={maxDate}
+									bind:value={filtro.fechaInicio}
+									class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								/>
+							</div>
+						</div>
+
+						<div class="basis-xs space-y-0.5">
+							<label for="fecha-fin" class="block text-xs font-medium text-gray-700"
+								>Fecha Fin</label
+							>
+							<div class="flex-col">
+								<input
+									type="date"
+									id="fecha-fin"
+									name="fechaFin"
+									min="2025-09-01"
+									max={maxDate}
+									bind:value={filtro.fechaFin}
+									class="w-full rounded-md border border-gray-300 px-3 py-2 transition-all focus:ring-2 focus:ring-blue-500 focus:outline-none"
+								/>
+							</div>
+						</div>
+					</div>
+					{#if showMessageFechas}
+						<p class="text-xs text-gray-500">
+							* Si no se selecciona ninguna fecha, se buscará en todas las fechas.
+						</p>
+					{/if}
+					{#if errors.fechaFin}
+						<p class="text-xs text-red-500">
+							{errors.fechaFin}
+						</p>
+					{/if}
+				</div>
+			{/if}
+
 			<SelectField
 				label="Turno"
 				name="turnoId"

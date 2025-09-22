@@ -4,10 +4,17 @@ import type { Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { searchParamsToFiltroTarea } from "$lib/api/utils";
 import { TareasApi } from "$lib/api/tareasApi";
+import { nowToString } from "$lib/api/dateUtils";
 
 export const load: PageServerLoad = async ({ fetch, url, locals }) => {
 
   const filtro = searchParamsToFiltroTarea(url.searchParams)
+
+  const isAdmin = locals.user?.isAdmin
+
+  if (filtro.fecha === undefined) {
+    filtro.fecha = nowToString(); // Formato YYYY-MM-DD
+  }
 
   const tareasApi = new TareasApi(fetch);
 
@@ -15,8 +22,6 @@ export const load: PageServerLoad = async ({ fetch, url, locals }) => {
     tareasApi.getTareas(filtro),
     tareasApi.getPuestos(),
     tareasApi.getTurnos()])
-
-  const isAdmin = locals.user?.isAdmin
 
   return {
     tareas,

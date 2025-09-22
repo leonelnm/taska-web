@@ -1,7 +1,10 @@
 <script lang="ts">
 	import Header from '$lib/components/Header.svelte';
+	import { setUserIsAdmin } from '$lib/context.js';
 
 	let { data, children } = $props();
+
+	setUserIsAdmin(data.isAdmin);
 </script>
 
 <Header isAdmin={data.isAdmin} />

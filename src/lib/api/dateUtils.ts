@@ -1,12 +1,42 @@
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday';
+import isoWeek from 'dayjs/plugin/isoWeek'
 import 'dayjs/locale/es';
 
 dayjs.extend(weekday);
+dayjs.extend(isoWeek);
 dayjs.locale('es');
 
 export function now(): dayjs.Dayjs {
   return dayjs();
+}
+
+export function nowToString(): string {
+  return dayjs().format('YYYY-MM-DD');
+}
+
+export function getWeekInitialDayAndEndDayFromToday(): { start: string; end: string } {
+  const start = now().weekday(0).format('YYYY-MM-DD'); // Lunes
+  const end = now().weekday(6).format('YYYY-MM-DD');   // Domingo
+  return { start, end };
+}
+
+export function nowPlusYearToString(): string {
+  return dayjs().add(1, 'year').format('YYYY-MM-DD');
+}
+
+export function isBeforeToday(fecha: string | undefined): boolean {
+  if (fecha === undefined) {
+    return false;
+  }
+  return dayjs(fecha).isBefore(now(), 'day');
+}
+
+export function getDayName(fecha: string | undefined): string {
+  if (fecha === undefined) {
+    return '';
+  }
+  return formatDayNameFull(dayjs(fecha));
 }
 
 export function getDate(fecha: string | undefined): dayjs.Dayjs {
@@ -37,3 +67,16 @@ export function formatDayName(dia: dayjs.Dayjs) {
   };
   return dayNames[dia.day() as keyof typeof dayNames];
 };
+
+export function formatDayNameFull(dia: dayjs.Dayjs) {
+  const dayNames = {
+    0: 'Domingo',  // domingo
+    1: 'Lunes',    // lunes
+    2: 'Martes',   // martes
+    3: 'Miércoles',// miércoles
+    4: 'Jueves',   // jueves
+    5: 'Viernes',  // viernes
+    6: 'Sábado'    // sábado
+  };
+  return dayNames[dia.day() as keyof typeof dayNames];
+}

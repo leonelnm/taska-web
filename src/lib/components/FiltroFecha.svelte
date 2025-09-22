@@ -7,9 +7,10 @@
 
 	interface Props {
 		filtroState?: FiltroTareaRequest;
+		loading?: boolean;
 	}
 
-	let { filtroState }: Props = $props();
+	let { filtroState, loading = $bindable(false) }: Props = $props();
 
 	const today = now();
 
@@ -24,10 +25,12 @@
 		currentDate = nextWeekDate;
 	};
 
-	const searchByDate = (date: Dayjs) => {
+	const searchByDate = async (date: Dayjs) => {
+		loading = true;
 		currentDate = date;
 		selected = date;
-		goto(`/searcher?fecha=${date.format('YYYY-MM-DD')}`);
+		await goto(`/?fecha=${date.format('YYYY-MM-DD')}`);
+		loading = false;
 	};
 
 	const goToday = () => {

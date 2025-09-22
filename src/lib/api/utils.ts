@@ -66,7 +66,9 @@ export function formDataToFiltroTarea(formData: FormData): FiltroTareaRequest {
     completada: obj.completada
       ? obj.completada === "true" || obj.completada === "on" // según tu <input type="checkbox">
       : undefined,
-    fecha: obj.fecha ? String(obj.fecha) : undefined
+    fecha: obj.fecha ? String(obj.fecha) : undefined,
+    fechaInicio: obj.fechaInicio ? String(obj.fechaInicio) : undefined,
+    fechaFin: obj.fechaFin ? String(obj.fechaFin) : undefined
   };
 }
 
@@ -78,7 +80,12 @@ export function filtroTareaToSearchParams(filtro: FiltroTareaRequest): URLSearch
   if (filtro.tipoRecurrencia !== undefined) params.set("tipoRecurrencia", filtro.tipoRecurrencia);
   if (filtro.diaSemana !== undefined) params.set("diaSemana", filtro.diaSemana);
   if (filtro.completada !== undefined) params.set("completada", String(filtro.completada));
-  if (filtro.fecha !== undefined) params.set("fecha", filtro.fecha);
+  if (filtro.fechaInicio !== undefined) params.set("fechaInicio", filtro.fechaInicio);
+  if (filtro.fechaFin !== undefined) params.set("fechaFin", filtro.fechaFin);
+
+  if (filtro.fecha !== undefined && filtro.fechaInicio === undefined) {
+    params.set("fecha", filtro.fecha);
+  }
 
   return params;
 }
@@ -106,6 +113,8 @@ export function searchParamsToFiltroTarea(params: URLSearchParams): FiltroTareaR
     tipoRecurrencia: getParam<RecurrenceType>(params, "tipoRecurrencia"),
     diaSemana: getParam<DiaSemana>(params, "diaSemana"),
     completada: getBoolean("completada"),
-    fecha: getParam<string>(params, "fecha")
+    fecha: getParam<string>(params, "fecha"),
+    fechaInicio: getParam<string>(params, "fechaInicio"),
+    fechaFin: getParam<string>(params, "fechaFin")
   };
 }

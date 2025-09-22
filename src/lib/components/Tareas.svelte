@@ -3,7 +3,12 @@
 	import Tarea from './Tarea.svelte';
 	import { fade } from 'svelte/transition';
 
-	let { tareas }: { tareas: TareaApp[] } = $props();
+	interface Props {
+		tareas: TareaApp[];
+		loading: boolean;
+	}
+
+	let { tareas, loading = false }: Props = $props();
 
 	let incompletas = $derived.by(() => tareas.filter((t) => !t.completada));
 	let completadas = $derived.by(() => tareas.filter((t) => t.completada));
@@ -15,6 +20,23 @@
 			incompletas: incompletas.length
 		};
 	});
+
+	const handleComplete = (id: number) => {
+		console.log('Completar tarea con id:', id);
+		tareas = tareas.map((t) => (t.id === id ? { ...t, completada: !t.completada } : t));
+		console.log(
+			'Tarea completada',
+			tareas.find((t) => t.id === id)
+		);
+	};
+
+	const handleEdit = (id: number) => {
+		// Lógica para editar la tarea
+	};
+
+	const handleDelete = (id: number) => {
+		// Lógica para eliminar la tarea
+	};
 </script>
 
 <div class="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-8">
@@ -29,22 +51,24 @@
 		{/if}
 	</div>
 
-	{#if tareas.length === 0}
+	{#if loading}
+		<div transition:fade={{ duration: 150 }} class="mt-4 text-center text-gray-500">
+			Cargando tareas...
+		</div>
+	{:else if tareas.length === 0}
 		<p class="mt-4 text-gray-500">No hay tareas disponibles.</p>
-	{:else}
+	{/if}
+
+	{#if !loading}
 		<div class="space-y-4">
 			<div class="mt-4 space-y-4">
 				{#each incompletas as tarea (tarea.id)}
-					<div>
-						<Tarea {tarea} />
-					</div>
+					<Tarea {tarea} {handleComplete} {handleEdit} {handleDelete} />
 				{/each}
 			</div>
 			<div class="mt-4 space-y-4">
 				{#each completadas as tarea (tarea.id)}
-					<div>
-						<Tarea {tarea} />
-					</div>
+					<Tarea {tarea} {handleComplete} {handleEdit} {handleDelete} />
 				{/each}
 			</div>
 		</div>

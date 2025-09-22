@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { navigating } from '$app/state';
 	import ButtonLoading from '$lib/components/ButtonLoading.svelte';
 	import { translate } from '$lib/i18n/errors';
 
@@ -14,7 +15,11 @@
 		class="mx-auto mb-40 w-full max-w-sm space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm"
 		use:enhance={() => {
 			accediendo = true;
-			return async ({ update }) => {
+			return async ({ update, result }) => {
+				if (result.type === 'success') {
+					accediendo = navigating !== null;
+				}
+
 				accediendo = false;
 				await update();
 			};
