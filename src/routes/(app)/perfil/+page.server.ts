@@ -50,7 +50,10 @@ export const actions: Actions = {
         });
       }
 
-      return fail(500, { message: 'Error inesperado al cambiar la contraseña.' });
+      return fail(500, {
+        message: 'Error inesperado al cambiar la contraseña.',
+        errors: { general: 'Error inesperado al cambiar la contraseña.' }
+      });
     }
 
     return { success: true };
