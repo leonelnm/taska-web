@@ -57,7 +57,7 @@
 		</p>
 	{/if}
 
-	{#if !loading}
+	{#if !loading && tareas.length > 0}
 		<div class="space-y-4">
 			<div class="mt-4 space-y-4">
 				{#each incompletas as tarea (tarea.id)}
