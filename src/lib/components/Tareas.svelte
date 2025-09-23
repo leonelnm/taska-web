@@ -51,12 +51,10 @@
 		{/if}
 	</div>
 
-	{#if loading}
-		<div transition:fade={{ duration: 150 }} class="mt-4 text-center text-gray-500">
-			Cargando tareas...
-		</div>
-	{:else if tareas.length === 0}
-		<p class="mt-4 text-gray-500">No hay tareas disponibles.</p>
+	{#if loading || tareas.length === 0}
+		<p class="mt-4 text-gray-500">
+			{loading ? 'Cargando...' : 'No hay tareas disponibles.'}
+		</p>
 	{/if}
 
 	{#if !loading}
