@@ -87,6 +87,7 @@
 		</div>
 
 		<InputPassword
+			label="Nueva Contraseña"
 			inputName="newPassword"
 			bind:password={newPassword}
 			validationCallback={handlePasswordValidation}
@@ -94,7 +95,7 @@
 		/>
 
 		<div class="space-y-2">
-			<label for="password2" class="block font-medium">Repetir Contraseña</label>
+			<label for="password2" class="block font-medium">Repetir Nueva Contraseña</label>
 			<input
 				type="password"
 				name="password2"

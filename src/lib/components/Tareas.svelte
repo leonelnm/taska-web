@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { TareaApp } from '$lib/types';
+	import { flip } from 'svelte/animate';
 	import Tarea from './Tarea.svelte';
 	import { fade } from 'svelte/transition';
 
@@ -21,13 +22,22 @@
 		};
 	});
 
-	const handleComplete = (id: number) => {
-		console.log('Completar tarea con id:', id);
+	const handleComplete = async (id: number) => {
+		const tarea = tareas.find((t) => t.id === id);
+		if (!tarea) return;
+
+		const response = await fetch(`/api/tarea/${id}/complete`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		if (!response.ok) {
+			tarea.completada = !tarea.completada;
+		}
+
 		tareas = tareas.map((t) => (t.id === id ? { ...t, completada: !t.completada } : t));
-		console.log(
-			'Tarea completada',
-			tareas.find((t) => t.id === id)
-		);
 	};
 
 	const handleEdit = (id: number) => {
@@ -61,7 +71,9 @@
 		<div class="space-y-4">
 			<div class="mt-4 space-y-4">
 				{#each incompletas as tarea (tarea.id)}
-					<Tarea {tarea} {handleComplete} {handleEdit} {handleDelete} />
+					<div animate:flip>
+						<Tarea {tarea} {handleComplete} {handleEdit} {handleDelete} />
+					</div>
 				{/each}
 			</div>
 			<div class="mt-4 space-y-4">

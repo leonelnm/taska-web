@@ -25,6 +25,11 @@
 		currentDate = nextWeekDate;
 	};
 
+	const handlePreviousWeek = () => {
+		const previousWeekDate = currentDate.subtract(7, 'day');
+		currentDate = previousWeekDate;
+	};
+
 	const searchByDate = async (date: Dayjs) => {
 		loading = true;
 		currentDate = date;
@@ -68,7 +73,7 @@
 		{/if}
 	</div>
 	<div class="mt-2 flex items-center justify-between">
-		<button aria-label="Previous week" class="rounded p-2" onclick={handleNextWeek}>
+		<button aria-label="Previous week" class="rounded p-2" onclick={handlePreviousWeek}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				fill="none"

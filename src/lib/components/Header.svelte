@@ -140,8 +140,8 @@
 						<li>
 							<a
 								href={option.path}
-								class="block rounded-sm px-3 py-2 hover:bg-amber-700 hover:text-white
-									{page.url.pathname === option.path ? 'bg-amber-700 text-white' : 'text-gray-900'}"
+								class="block rounded-sm px-3 py-2 hover:bg-amber-600 hover:text-white
+									{page.url.pathname === option.path ? 'bg-amber-600 text-white' : 'text-gray-900'}"
 							>
 								{option.label}
 							</a>
@@ -149,7 +149,7 @@
 					{/each}
 					<li>
 						<button
-							class="flex rounded-sm px-3 py-2 text-left hover:bg-amber-700 hover:text-white"
+							class="flex rounded-sm px-3 py-2 text-left hover:bg-amber-600 hover:text-white"
 							onclick={handleLogout}
 						>
 							Cerrar sesión

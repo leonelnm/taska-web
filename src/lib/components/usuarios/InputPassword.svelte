@@ -4,6 +4,7 @@
 
 	interface Props {
 		password: string;
+		label?: string;
 		formErrors?: Record<string, string> | undefined;
 		inputName?: string;
 		validationCallback: (valid: boolean) => void;
@@ -11,6 +12,7 @@
 
 	let {
 		password = $bindable(),
+		label,
 		formErrors,
 		validationCallback,
 		inputName = 'password'
@@ -45,7 +47,7 @@
 </script>
 
 <div class="space-y-2">
-	<label for={inputName} class="block font-medium">Contraseña</label>
+	<label for={inputName} class="block font-medium">{label || 'Contraseña'}</label>
 	<input
 		type="password"
 		name={inputName}

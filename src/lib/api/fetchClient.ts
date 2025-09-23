@@ -32,7 +32,12 @@ export const fetchClient = async <T>(
     throw error;
   }
 
+  if (response.status === 204) {
+    return undefined as T; // void
+  }
+
   return response.json();
+
 }
 
 export class Fetch {
@@ -46,6 +51,8 @@ export class Fetch {
     try {
       return await fetchClient<T>(this.#fetch, url, options);
     } catch (error) {
+      console.log({ error });
+
       const err = error as FetchError;
       if (err.response?.status === 400
         || err.response?.status === 401
