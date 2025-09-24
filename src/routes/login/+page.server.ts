@@ -19,14 +19,14 @@ export const actions: Actions = {
     const username = formData.get('username') as string;
     const password = formData.get('password') as string;
 
-    if (!username || !password) {
+    if (!username || !password || username.trim() === '' || password.trim() === '') {
       return fail(400, {
         error: 'Faltan el nombre de usuario o la contraseña.'
       });
     }
 
     try {
-      const { token, refreshToken } = await loginApi(new Fetch(fetch), username.trim(), password.trim());
+      const { token, refreshToken } = await loginApi(new Fetch(fetch), username.toLocaleLowerCase().trim(), password.trim());
 
       cookies.set(Constants.COOKIE_SESSION_NAME, token, {
         path: '/',

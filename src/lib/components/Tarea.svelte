@@ -19,7 +19,7 @@
 
 	const recurrenceColors: Record<RecurrenceType, string> = {
 		[RecurrenceType.DIARIA]: 'bg-cyan-50 text-cyan-600 border border-cyan-200',
-		[RecurrenceType.SEMANAL]: 'bg-yellow-50 text-yellow-600 border border-yellow-200',
+		[RecurrenceType.SEMANAL]: 'bg-teal-50 text-teal-600 border border-teal-200',
 		[RecurrenceType.QUINCENAL]: 'bg-indigo-50 text-indigo-600 border border-indigo-200',
 		[RecurrenceType.MENSUAL]: 'bg-purple-50 text-purple-600 border border-purple-200',
 		[RecurrenceType.UNA_VEZ]: 'bg-gray-50 text-gray-600 border border-gray-200'
@@ -92,7 +92,7 @@
 		</div>
 	</div>
 	{#if isAdmin}
-		<div class="flex justify-end space-x-2">
+		<div class="mt-2 flex justify-end space-x-2">
 			<button
 				onclick={() => handleDelete(tarea.id)}
 				aria-label="eliminar tarea"
@@ -114,7 +114,7 @@
 				</svg>
 				Eliminar
 			</button>
-			<button
+			<!-- <button
 				onclick={() => handleEdit(tarea.id)}
 				aria-label="editar tarea"
 				class="inline-flex items-center rounded-lg border border-amber-500 px-3 py-2.5 text-center text-sm font-semibold text-amber-600 hover:bg-amber-600 hover:text-white focus:ring-4 focus:ring-amber-500 focus:outline-none"
@@ -134,7 +134,7 @@
 					/>
 				</svg>
 				Editar</button
-			>
+			> -->
 		</div>
 	{/if}
 </div>

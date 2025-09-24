@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { TareaApp } from '$lib/types';
+	import { RecurrenceType, type TareaApp } from '$lib/types';
 	import { flip } from 'svelte/animate';
 	import Tarea from './Tarea.svelte';
 	import { fade } from 'svelte/transition';
@@ -21,6 +21,10 @@
 			incompletas: incompletas.length
 		};
 	});
+
+	// Modal state
+	let showModal = $state(false);
+	let tareaToDelete = $state<TareaApp | null>(null);
 
 	const handleComplete = async (id: number) => {
 		const tarea = tareas.find((t) => t.id === id);
@@ -45,7 +49,49 @@
 	};
 
 	const handleDelete = (id: number) => {
-		// Lógica para eliminar la tarea
+		const tarea = tareas.find((t) => t.id === id);
+		if (!tarea) return;
+
+		if (tarea.recurrencia.recurrenceType !== RecurrenceType.UNA_VEZ) {
+			tareaToDelete = tarea;
+			showModal = true;
+			// Deshabilitar scroll del body
+			document.body.style.overflow = 'hidden';
+		} else {
+			// Eliminar tarea única directamente
+			deleteTarea(id, false);
+		}
+	};
+
+	const deleteTarea = async (id: number, deleteAll: boolean) => {
+		// Aquí harás el POST request según el tipo de eliminación
+		console.log(`Eliminando tarea ${id}, deleteAll: ${deleteAll}`);
+
+		// TODO: Implementar el POST request
+		// const endpoint = deleteAll ? `/api/tarea/${id}/delete-all` : `/api/tarea/${id}/delete-single`;
+		// const response = await fetch(endpoint, { method: 'POST' });
+
+		// Por ahora solo cerramos el modal
+		closeModal();
+	};
+
+	const handleDeleteAll = () => {
+		if (tareaToDelete) {
+			deleteTarea(tareaToDelete.id, true);
+		}
+	};
+
+	const handleDeleteSingle = () => {
+		if (tareaToDelete) {
+			deleteTarea(tareaToDelete.id, false);
+		}
+	};
+
+	const closeModal = () => {
+		showModal = false;
+		tareaToDelete = null;
+		// Restaurar scroll del body
+		document.body.style.overflow = '';
 	};
 </script>
 
@@ -84,3 +130,109 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Modal de confirmación -->
+{#if showModal}
+	<div
+		class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+		transition:fade
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+		onclick={closeModal}
+		onkeydown={(e) => e.key === 'Escape' && closeModal()}
+	>
+		<div class="relative mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+			<!-- Botón cerrar (solo visible en pantallas grandes) -->
+			<button
+				type="button"
+				class="absolute top-4 right-4 hidden rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:ring-2 focus:ring-gray-500 focus:outline-none sm:block"
+				aria-label="Cerrar modal"
+				onclick={closeModal}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="size-6"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+				</svg>
+			</button>
+
+			<!-- Botón cerrar mobile (solo visible en mobile) -->
+			<button
+				type="button"
+				class="absolute top-4 right-4 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:ring-2 focus:ring-gray-500 focus:outline-none sm:hidden"
+				aria-label="Cerrar modal"
+				onclick={closeModal}
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
+					class="size-6"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+				</svg>
+			</button>
+
+			<div class="mb-4 pr-8">
+				<h3 class="text-lg font-semibold text-gray-900">Eliminar tarea recurrente</h3>
+			</div>
+
+			<div class="mb-6">
+				<p class="text-gray-600">
+					Esta tarea es recurrente. ¿Deseas eliminar solo esta instancia o todas las futuras?
+				</p>
+			</div>
+
+			<!-- Botones mobile: Borrar todas (izq) - Solo esta (der) -->
+			<div class="flex gap-3 sm:hidden">
+				<button
+					type="button"
+					class="flex-1 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+					onclick={handleDeleteAll}
+				>
+					Eliminar todas
+				</button>
+				<button
+					type="button"
+					class="flex-1 rounded-md border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-medium text-orange-700 hover:bg-orange-100 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:outline-none"
+					onclick={handleDeleteSingle}
+				>
+					Solo esta
+				</button>
+			</div>
+
+			<!-- Botones desktop: Cancelar - Eliminar todas - Solo esta -->
+			<div class="hidden justify-end gap-3 sm:flex">
+				<button
+					type="button"
+					class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+					onclick={closeModal}
+				>
+					Cancelar
+				</button>
+				<button
+					type="button"
+					class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+					onclick={handleDeleteAll}
+				>
+					Eliminar todas
+				</button>
+				<button
+					type="button"
+					class="rounded-md border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-medium text-orange-700 hover:bg-orange-100 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:outline-none"
+					onclick={handleDeleteSingle}
+				>
+					Solo esta
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
