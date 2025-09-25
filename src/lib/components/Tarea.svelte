@@ -37,7 +37,8 @@
 	transition:fade={{ duration: 150 }}
 	class="rounded-lg border border-gray-100 bg-gray-100/60 p-4 transition-shadow hover:shadow-sm"
 	class:line-through={completadaInternal}
-	class:opacity-60={completadaInternal}
+	class:opacity-70={completadaInternal}
+	class:text-gray-500={completadaInternal}
 >
 	<div class="flex items-center gap-3">
 		<div class="flex flex-grow gap-2">

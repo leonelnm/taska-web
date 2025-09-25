@@ -26,5 +26,7 @@ export const Routes = {
     CREATE_BATCH: '/tareas/batch', // POST
     ALL: '/tareas/all',          // GET (solo admin)
     COMPLETE: (id: number) => `/tareas/${id}/completar`, // POST
+    DELETE_ALL: (id: number) => `/tareas/${id}/eliminar-todas`, // POST
+    DELETE: (id: number) => `/tareas/${id}/eliminar`, // POST
   },
 } as const;

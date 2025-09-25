@@ -7,7 +7,7 @@
 	setUserIsAdmin(data.isAdmin);
 </script>
 
-<Header isAdmin={data.isAdmin} />
+<Header isAdmin={data.isAdmin} name={data?.user?.name} />
 <main class="container mx-auto px-4 py-6">
 	{@render children()}
 </main>

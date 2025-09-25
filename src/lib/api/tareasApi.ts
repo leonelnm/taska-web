@@ -57,6 +57,30 @@ export class TareasApi {
     }
   }
 
+  // POST /tareas/{id}/eliminar
+  public async eliminarTarea(id: number): Promise<void> {
+    try {
+      await this.fetch.request<void>(Routes.TAREAS.DELETE(id), {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("Error deleting tarea:", error);
+      throw error;
+    }
+  }
+
+  // POST /tareas/{id}/eliminar-todas
+  public async eliminarTodasTareas(id: number): Promise<void> {
+    try {
+      await this.fetch.request<void>(Routes.TAREAS.DELETE_ALL(id), {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("Error deleting all tareas:", error);
+      throw error;
+    }
+  }
+
   public async getPuestos(): Promise<Puesto[]> {
     try {
       const data = await this.fetch.request<Puesto[]>(Routes.PUESTOS.BASE);

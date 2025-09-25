@@ -4,7 +4,7 @@
 	import type { FiltroTareaRequest, Puesto, Turno } from '$lib/types';
 	import SelectField from './SelectField.svelte';
 	import { enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { nowPlusYearToString } from '$lib/api/dateUtils';
 	import type { SubmitFunction } from '@sveltejs/kit';
 
@@ -100,6 +100,8 @@
 		}
 
 		return async ({ result }) => {
+			await invalidateAll();
+
 			if (result.type === 'success') {
 				const { params } = result.data as {
 					params: string;
@@ -143,7 +145,7 @@
 		>
 			{#if isAdmin}
 				<div class="space-y-2">
-					<div class="flex justify-between gap-2">
+					<div class="space-y-2 sm:flex sm:items-center sm:gap-4 sm:space-y-0">
 						<div class="basis-xs space-y-0.5">
 							<label for="fecha-inicio" class="block text-xs font-medium text-gray-700"
 								>Fecha Inicio</label
@@ -245,7 +247,7 @@
 
 				<button
 					type="submit"
-					class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:bg-blue-300"
+					class="over:bg-amber-700 inline-flex items-center rounded-lg bg-amber-600 px-5 py-2.5 text-center text-sm font-medium text-white focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:outline-none invalid:focus:ring-red-500 disabled:bg-amber-900"
 					onclick={(e) => e.currentTarget.blur()}
 					disabled={isSearching}
 				>

@@ -21,7 +21,7 @@
 	{/if}
 
 	{#if !data.isAdmin}
-		<FiltroFecha filtroState={data.filtro} bind:loading />
+		<FiltroFecha filtroState={data.filtro} bind:loading turnos={data.turnos} />
 	{/if}
 
 	<Tareas tareas={data.tareas} {loading} />

@@ -3,7 +3,7 @@
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
 
-	let { isAdmin = false } = $props();
+	let { isAdmin = false, name = undefined } = $props();
 
 	const handleLogout = async () => {
 		await fetch('/api/logout', { method: 'POST' });
@@ -29,6 +29,12 @@
 	});
 
 	let open = $state(false);
+	let nameToShow = $derived.by(() => {
+		if (name) {
+			return name.split(' ')[0];
+		}
+		return 'Usuario';
+	});
 </script>
 
 <header class="w-full bg-white shadow-sm">
@@ -58,6 +64,8 @@
 					class="rounded-lg bg-gradient-to-br from-pink-500 to-orange-400 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:ring-4 focus:ring-pink-200 focus:outline-none"
 					>Agregar tarea</a
 				>
+			{:else}
+				<p class="font-medium">{nameToShow}</p>
 			{/if}
 
 			<button

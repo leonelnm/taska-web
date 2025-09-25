@@ -3,6 +3,8 @@
 	import { flip } from 'svelte/animate';
 	import Tarea from './Tarea.svelte';
 	import { fade } from 'svelte/transition';
+	import { invalidateAll } from '$app/navigation';
+	import { cubicOut, bounceIn, cubicInOut } from 'svelte/easing';
 
 	interface Props {
 		tareas: TareaApp[];
@@ -27,21 +29,23 @@
 	let tareaToDelete = $state<TareaApp | null>(null);
 
 	const handleComplete = async (id: number) => {
-		const tarea = tareas.find((t) => t.id === id);
-		if (!tarea) return;
+		try {
+			const response = await fetch(`/api/tarea/${id}/complete`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
 
-		const response = await fetch(`/api/tarea/${id}/complete`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
+			if (response.ok) {
+				// Recargar los datos desde el servidor
+				await invalidateAll();
+			} else {
+				console.error('Error completando tarea');
 			}
-		});
-
-		if (!response.ok) {
-			tarea.completada = !tarea.completada;
+		} catch (error) {
+			console.error('Error en la petición:', error);
 		}
-
-		tareas = tareas.map((t) => (t.id === id ? { ...t, completada: !t.completada } : t));
 	};
 
 	const handleEdit = (id: number) => {
@@ -64,15 +68,25 @@
 	};
 
 	const deleteTarea = async (id: number, deleteAll: boolean) => {
-		// Aquí harás el POST request según el tipo de eliminación
-		console.log(`Eliminando tarea ${id}, deleteAll: ${deleteAll}`);
+		try {
+			const response = await fetch(`/api/tarea/${id}/delete`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ deleteAll })
+			});
 
-		// TODO: Implementar el POST request
-		// const endpoint = deleteAll ? `/api/tarea/${id}/delete-all` : `/api/tarea/${id}/delete-single`;
-		// const response = await fetch(endpoint, { method: 'POST' });
-
-		// Por ahora solo cerramos el modal
-		closeModal();
+			if (response.ok) {
+				await invalidateAll();
+			} else {
+				console.error('Error eliminando tarea');
+			}
+		} catch (error) {
+			console.error('Error en la petición:', error);
+		} finally {
+			closeModal();
+		}
 	};
 
 	const handleDeleteAll = () => {
@@ -135,7 +149,7 @@
 {#if showModal}
 	<div
 		class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black/90"
-		transition:fade
+		transition:fade={{ duration: 100, easing: cubicInOut }}
 		role="dialog"
 		aria-modal="true"
 		tabindex="-1"

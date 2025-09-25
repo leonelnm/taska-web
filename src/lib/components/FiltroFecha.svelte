@@ -1,18 +1,22 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { formatDayName, getDate, now, obtenerSemana } from '$lib/api/dateUtils';
-	import type { FiltroTareaRequest } from '$lib/types';
+	import type { FiltroTareaRequest, Turno } from '$lib/types';
 	import type { Dayjs } from 'dayjs';
 	import { fade } from 'svelte/transition';
+	import SelectField from './SelectField.svelte';
 
 	interface Props {
 		filtroState?: FiltroTareaRequest;
+		turnos: Turno[];
 		loading?: boolean;
 	}
 
-	let { filtroState, loading = $bindable(false) }: Props = $props();
+	let { filtroState, turnos, loading = $bindable(false) }: Props = $props();
 
 	const today = now();
+
+	let turnoSelected = $state(filtroState?.turnoId);
 
 	let currentDate = $state(getDate(filtroState?.fecha));
 	let diasSemana = $derived(obtenerSemana(currentDate));
@@ -30,22 +34,48 @@
 		currentDate = previousWeekDate;
 	};
 
-	const searchByDate = async (date: Dayjs) => {
+	const updateURL = async (params: { fecha?: string; turnoId?: number }) => {
 		loading = true;
+
+		const searchParams = new URLSearchParams();
+		if (params.fecha) searchParams.set('fecha', params.fecha);
+		if (params.turnoId) searchParams.set('turnoId', params.turnoId.toString());
+
+		const url = searchParams.toString() ? `/?${searchParams.toString()}` : '/';
+		await goto(url, { replaceState: true });
+
+		loading = false;
+	};
+
+	const searchByDate = async (date: Dayjs) => {
 		currentDate = date;
 		selected = date;
-		await goto(`/?fecha=${date.format('YYYY-MM-DD')}`);
-		loading = false;
+
+		await updateURL({
+			fecha: selected.format('YYYY-MM-DD'),
+			...(turnoSelected && { turnoId: turnoSelected })
+		});
 	};
 
 	const goToday = () => {
 		searchByDate(today);
 	};
+
+	$effect(() => {
+		if (turnoSelected && selected) {
+			updateURL({
+				fecha: selected.format('YYYY-MM-DD'),
+				turnoId: turnoSelected
+			});
+		} else if (turnoSelected) {
+			updateURL({ turnoId: turnoSelected });
+		}
+	});
 </script>
 
 <div class="w-full rounded-lg border border-gray-200 bg-white py-4 shadow-sm sm:p-6 md:p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="px-4 py-2">{currentDate.format('MMMM YYYY')}</h1>
+		<h1 class="px-4 py-2 text-sm font-medium uppercase">{currentDate.format('YYYY MMMM')}</h1>
 		{#if !isToday}
 			<div class="px-4" transition:fade={{ duration: 150 }}>
 				<button
@@ -114,5 +144,15 @@
 				<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
 			</svg>
 		</button>
+	</div>
+
+	<div class="mt-2 px-4">
+		<SelectField
+			label="Turno"
+			name="turnoId"
+			bind:value={turnoSelected}
+			options={turnos}
+			valueKey="id"
+		/>
 	</div>
 </div>
