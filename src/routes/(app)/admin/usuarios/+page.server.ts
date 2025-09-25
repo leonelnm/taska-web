@@ -12,12 +12,14 @@ export const load: PageServerLoad = async ({ fetch }) => {
   const users = await userApi.getUsers();
 
   return {
-    users
+    users: users
+      .sort((a, b) => a.username.localeCompare(b.username))
+      .filter(u => u.username !== 'admin')
   }
 };
 
 export const actions: Actions = {
-  default: async ({ request, fetch }) => {
+  create: async ({ request, fetch }) => {
     const fd = await request.formData();
 
     const username = String(fd.get('usuario') ?? '').trim();
@@ -95,5 +97,51 @@ export const actions: Actions = {
     }
 
     return { success: true };
+  },
+
+  activate: async ({ request, fetch }) => {
+    const data = await request.formData();
+    const username = data.get("username") as string;
+
+    if (!username) {
+      return fail(400, { message: 'Username requerido' });
+    }
+
+    const userApi = new UserApi(fetch);
+
+    try {
+      const success = await userApi.activateUser(username);
+      if (success) {
+        return { success: true, action: 'activate', username };
+      } else {
+        return fail(400, { message: 'Error activando usuario' });
+      }
+    } catch (error) {
+      console.error('Error activating user:', error);
+      return fail(500, { message: 'Error interno del servidor' });
+    }
+  },
+
+  deactivate: async ({ request, fetch }) => {
+    const data = await request.formData();
+    const username = data.get("username") as string;
+
+    if (!username) {
+      return fail(400, { message: 'Username requerido' });
+    }
+
+    const userApi = new UserApi(fetch);
+
+    try {
+      const success = await userApi.deactivateUser(username);
+      if (success) {
+        return { success: true, action: 'deactivate', username };
+      } else {
+        return fail(400, { message: 'Error desactivando usuario' });
+      }
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+      return fail(500, { message: 'Error interno del servidor' });
+    }
   }
 };
