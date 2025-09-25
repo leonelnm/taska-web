@@ -27,7 +27,7 @@ export interface TareaApp {
   id: number;
   descripcion: string;
   completada: boolean;
-  fechaCompletada: string | null;
+  fechaCompletada: string | undefined;
   fecha: string;
   recurrencia: Recurrence
   diaSemana: DiaSemana | null;

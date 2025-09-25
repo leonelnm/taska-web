@@ -19,6 +19,15 @@ export function nowPlusWeekToString(weeks: number): string {
   return dayjs().add(weeks, 'week').format('YYYY-MM-DD');
 }
 
+export function dateToString(fecha: string | undefined): string {
+
+  if (fecha === undefined) {
+    return '';
+  }
+
+  return dayjs(fecha).format('YYYY-MM-DD');
+}
+
 export function getWeekInitialDayAndEndDayFromToday(): { start: string; end: string } {
   const start = now().weekday(0).format('YYYY-MM-DD'); // Lunes
   const end = now().weekday(6).format('YYYY-MM-DD');   // Domingo

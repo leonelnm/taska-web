@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { RecurrenceType, type TareaApp } from '$lib/types';
 	import { getUserIsAdmin } from '$lib/context';
-	import { getDayName, isBeforeToday } from '$lib/api/dateUtils';
+	import { dateToString, getDayName, isBeforeToday } from '$lib/api/dateUtils';
 	import { fade } from 'svelte/transition';
 
 	interface Props {
@@ -31,13 +31,23 @@
 		completadaInternal = !completadaInternal;
 		handleComplete(id);
 	};
+
+	let dateToShow = $derived.by(() => {
+		if (tarea.completada) {
+			const date = isAdmin
+				? `${getDayName(tarea.fechaCompletada)} ${tarea.fechaCompletada}`
+				: tarea.fechaCompletada;
+			return dateToString(date);
+		}
+
+		return isAdmin ? `${getDayName(tarea.fecha)} ${tarea.fecha}` : tarea.fecha;
+	});
 </script>
 
 <div
 	transition:fade={{ duration: 150 }}
 	class="rounded-lg border border-gray-100 bg-gray-100/60 p-4 transition-shadow hover:shadow-sm"
-	class:line-through={completadaInternal}
-	class:opacity-70={completadaInternal}
+	class:opacity-60={completadaInternal}
 	class:text-gray-500={completadaInternal}
 >
 	<div class="flex items-center gap-3">
@@ -74,7 +84,7 @@
 								d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
 							/>
 						</svg>
-						{isAdmin ? `${getDayName(tarea.fecha)} ${tarea.fecha}` : tarea.fecha}
+						{dateToShow}
 					</p>
 				</div>
 			</div>
