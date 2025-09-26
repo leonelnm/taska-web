@@ -3,7 +3,7 @@
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/state';
 
-	let { isAdmin = false, name = undefined } = $props();
+	let { isAdmin = false, name = undefined, isEncargado = false } = $props();
 
 	const handleLogout = async () => {
 		await fetch('/api/logout', { method: 'POST' });
@@ -12,20 +12,27 @@
 	};
 
 	let routes = $derived.by(() => {
-		let data = [
+		const baseRoutes = [
 			{ path: '/', label: 'Inicio' },
 			{ path: '/perfil', label: 'Mi Perfil' }
 		];
 
+		const adminRoutes = [
+			{ path: '/admin/tarea', label: 'Crear Tarea' },
+			{ path: '/admin/usuarios', label: 'Usuarios' }
+		];
+
+		const encargadoRoutes = [{ path: '/admin/tarea', label: 'Crear Tarea' }];
+
 		if (isAdmin) {
-			data = [
-				...data,
-				{ path: '/admin/tarea', label: 'Crear Tarea' },
-				{ path: '/admin/usuarios', label: 'Usuarios' }
-			];
+			return [...baseRoutes, ...adminRoutes];
 		}
 
-		return data;
+		if (isEncargado) {
+			return [...baseRoutes, ...encargadoRoutes];
+		}
+
+		return baseRoutes;
 	});
 
 	let open = $state(false);

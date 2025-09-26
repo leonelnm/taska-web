@@ -9,3 +9,11 @@ export function setUserIsAdmin(isAdmin: boolean | undefined) {
 export function getUserIsAdmin() {
   return getContext(key) as boolean;
 }
+
+export function setUserIsEncargado(isEncargado: boolean | undefined) {
+  setContext("userIsEncargado", isEncargado ?? false);
+}
+
+export function getUserIsEncargado() {
+  return getContext("userIsEncargado") as boolean;
+}

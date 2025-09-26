@@ -126,7 +126,7 @@
 </script>
 
 <CardCollapse title="Crear Usuario" bind:collapsed>
-	<form class="space-y-5" method="POST" action="/create" use:enhance={enhanceSubmit}>
+	<form class="space-y-5" method="POST" action="?/create" use:enhance={enhanceSubmit}>
 		{#if formSuccess}
 			<div class="rounded-md bg-green-50 p-4">
 				<div class="flex">
