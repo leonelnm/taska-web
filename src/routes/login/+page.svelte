@@ -6,6 +6,13 @@
 	let { form } = $props();
 
 	let accediendo = $state(false);
+	let mostrarError = $state(true);
+
+	$effect(() => {
+		if (form?.error) {
+			mostrarError = true;
+		}
+	});
 </script>
 
 <div class="flex h-svh flex-col justify-center p-8">
@@ -13,6 +20,8 @@
 		method="POST"
 		class="mx-auto mb-40 w-full max-w-sm space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm"
 		use:enhance={() => {
+			// Ocultar el error antes de enviar
+			mostrarError = false;
 			accediendo = true;
 			return async ({ update, result }) => {
 				if (result.type !== 'redirect') {
@@ -65,7 +74,7 @@
 			/>
 		</div>
 
-		{#if form?.error}
+		{#if form?.error && mostrarError}
 			<div class="text-center text-sm text-red-600">
 				{translate(form.error)}
 			</div>
