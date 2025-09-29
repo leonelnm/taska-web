@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { navigating } from '$app/state';
 	import ButtonLoading from '$lib/components/ButtonLoading.svelte';
 	import { translate } from '$lib/i18n/errors';
 
@@ -16,11 +15,9 @@
 		use:enhance={() => {
 			accediendo = true;
 			return async ({ update, result }) => {
-				if (result.type === 'success') {
-					accediendo = navigating !== null;
+				if (result.type !== 'redirect') {
+					accediendo = false;
 				}
-
-				accediendo = false;
 				await update();
 			};
 		}}
