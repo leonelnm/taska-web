@@ -2,7 +2,6 @@
 	import { RecurrenceType, type TareaApp } from '$lib/types';
 	import { getUserIsAdmin } from '$lib/context';
 	import { dateToString, getDayName, isBeforeToday } from '$lib/api/dateUtils';
-	import { fade } from 'svelte/transition';
 
 	interface Props {
 		tarea: TareaApp;
@@ -45,7 +44,6 @@
 </script>
 
 <div
-	transition:fade={{ duration: 150 }}
 	class="rounded-lg border border-gray-100 bg-gray-100/60 p-4 transition-shadow hover:shadow-sm"
 	class:opacity-60={completadaInternal}
 	class:text-gray-500={completadaInternal}

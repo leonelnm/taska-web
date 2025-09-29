@@ -72,7 +72,7 @@
 					>Agregar tarea</a
 				>
 			{:else}
-				<p class="font-medium">{nameToShow}</p>
+				<p class="font-medium text-gray-600">{nameToShow}</p>
 			{/if}
 
 			<button

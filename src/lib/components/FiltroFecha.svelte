@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { formatDayName, getDate, now, obtenerSemana } from '$lib/api/dateUtils';
 	import type { FiltroTareaRequest, Turno } from '$lib/types';
 	import type { Dayjs } from 'dayjs';
@@ -42,6 +42,7 @@
 		if (params.turnoId) searchParams.set('turnoId', params.turnoId.toString());
 
 		const url = searchParams.toString() ? `/?${searchParams.toString()}` : '/';
+		await invalidateAll();
 		await goto(url, { replaceState: true });
 
 		loading = false;
@@ -79,7 +80,9 @@
 
 <div class="w-full rounded-lg border border-gray-200 bg-white py-4 shadow-sm sm:p-6 md:p-8">
 	<div class="flex items-center justify-between">
-		<h1 class="px-4 py-2 text-sm font-medium uppercase">{currentDate.format('YYYY MMMM')}</h1>
+		<h1 class="px-4 py-2 text-sm font-medium text-gray-600 uppercase">
+			{currentDate.format('YYYY MMMM')}
+		</h1>
 		{#if !isToday}
 			<div class="px-4" transition:fade={{ duration: 150 }}>
 				<button

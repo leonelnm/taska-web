@@ -4,7 +4,7 @@
 	import Tarea from './Tarea.svelte';
 	import { fade } from 'svelte/transition';
 	import { invalidateAll } from '$app/navigation';
-	import { cubicOut, bounceIn, cubicInOut } from 'svelte/easing';
+	import { cubicInOut } from 'svelte/easing';
 
 	interface Props {
 		tareas: TareaApp[];
