@@ -69,6 +69,10 @@
 			});
 		} else if (turnoSelected) {
 			updateURL({ turnoId: turnoSelected });
+		} else if (!turnoSelected && selected) {
+			updateURL({
+				fecha: selected.format('YYYY-MM-DD')
+			});
 		}
 	});
 </script>
